@@ -2,10 +2,9 @@
 
 [Vika](https://vika.cn) Python SDK [WIP]
 
-## 快速开始
-
-
 ![demo](https://s1.vika.cn/space/2020/10/19/f75caf2a161b465facfd170598ea0934)
+
+## 快速开始
 
 ### 环境要求
 
@@ -109,7 +108,7 @@ python -m unittest test
 
 目前不可以，后续 REST API 升级会暴露表格 meta 信息
 
-### 可以自动单多选选项吗？
+### 可以自动创建单多选选项吗？
 ```
 record.tags = ["目前 tags 字段中不存在的选项"]
 ```
