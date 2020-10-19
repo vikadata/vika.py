@@ -4,6 +4,9 @@
 
 ## 快速开始
 
+
+![demo](https://s1.vika.cn/space/2020/10/19/f75caf2a161b465facfd170598ea0934)
+
 ### 环境要求
 
 python3.6 + 
