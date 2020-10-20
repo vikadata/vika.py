@@ -22,10 +22,11 @@ class QuerySet:
     def first(self):
         return Record(self._dst, self._records[0])
 
-    def delete(self):
+    def delete(self) -> bool:
         r = self._dst.delete_records([rec["recordId"] for rec in self._records])
         if r:
             self._dst.remove_records(self._records)
+        return r
 
     def _clone(self):
         return QuerySet(self._dst, self._records)

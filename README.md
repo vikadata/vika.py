@@ -105,7 +105,7 @@ dst.records.filter(title=None).delete()
 | last   | /      | Record   | 最后一条记录           | `dst.records.filter(title="new title").last()`                    |
 | first  | /      | Record   | 第一条记录             | `dst.records.filter(title="new title").first()`                   |
 | update | **dict | int      | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
-| delete | /      | int      | 删除成功的记录数       | `dst.records.filter(title="new title").delete()`                  |
+| delete | /      | bool     | 是否删除成功           | `dst.records.filter(title="new title").delete()`                  |
 
 ### all 参数
 

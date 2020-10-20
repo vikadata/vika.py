@@ -15,15 +15,18 @@ class TestDelete(unittest.TestCase):
     def test_record_delete(self):
         record = self.dst.records.get(title="无人生还")
         time.sleep(2)
-        record.delete()
-        self.assertEqual(self.dst.records.count(), 0)
+        r = record.delete()
+        self.assertTrue(r)
+
+        time.sleep(2)
+        record_id = "recnotexist"
+        r = self.dst.delete_records([record_id])
+        self.assertFalse(r)
 
     def tearDown(self):
         time.sleep(2)
-        self.dst.records.create({
-            "title": "无人生还"
-        })
+        self.dst.records.create({"title": "无人生还"})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

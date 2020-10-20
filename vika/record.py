@@ -28,10 +28,11 @@ class Record:
 
     def delete(self) -> bool:
         self._check_record_status()
-        if self._datasheet.delete_records([self._id]):
+        r = self._datasheet.delete_records([self._id])
+        if r:
             self._datasheet.remove_records([self._record])
             self._is_del = True
-            return True
+        return r
 
     def _is_attachment_field(self, field_name):
         return field_name in self._datasheet.attachment_fields
