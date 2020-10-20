@@ -24,15 +24,14 @@ pipenv install vika
 
 ### 使用
 
-下面是一些常见的用法。详细的使用文档请参考 API 面板（进入任意一张数表, cmd + shift + p 打开 API 面板）
+基础用法
 
 ```python
 from vika import Vika
 vika = Vika("your api_token")
 
-
 dst = vika.datasheet("dstt3KGCKtp11fgK0t")
-# 下面这种写法也可以哦，会自动解析表格 id，忽略视图 id。
+# 传入表格URL 会自动解析表格 id，忽略视图 id。
 # dst = vika.datasheet("https://vika.cn/space/spcxcvEBLXf7X/workbench/dstt3KGCKtp11fgK0t/viwmKtRiYcPfk")
 
 # 创建记录
@@ -57,6 +56,13 @@ record.update({
   "other_field": "new value",
 })
 
+# 附件字段更新
+my_file = dst.upload_file(<本地或网络文件路径>)
+record.files = [my_file]
+# 初始化 datasheet 时指定附件字段，可以使用下面方法直接赋值。
+dst = vika.datasheet("dstid", attachment_fields=["cover"])
+record.cover = [<本地或网络文件路径>]
+
 # 过滤记录
 songs = dst_songs.records.filter(artist="faye wong")
 for song in songs:
@@ -72,6 +78,55 @@ print(book.title)
 # 删除符合过滤条件的一批记录
 dst.records.filter(title=None).delete()
 ```
+
+## API 
+
+### records 方法
+
+| 方法        | 参数   | 返回类型 | 说明                            | 例子                                                                         |
+|-------------|--------|----------|---------------------------------|------------------------------------------------------------------------------|
+| create      | dict   | Record   | 创建单条记录                    | `dst.records.create({"title":"new title"})`                                  |
+| bulk_create | dict[] | Record[] | 批量创建多条记录                | `dst.records.bulk_create([{"title":"new record1"},{"title":"new record2"}])` |
+| all         | **dict | QuerySet | 返回记录集合,可传参定制返回内容 | `dst.records.all()`                                                          |
+| count       | /      | int      | 记录总数                        | `dst.records.count()`                                                        |
+| get         | **dict | Record   | 单条记录                        | `dst.records.get(title="new title")`                                         |
+| filter      | **dict | QuerySet | 过滤一批记录                    | `dst.records.filter(title="new title")`                                      |
+
+### QuerySet
+
+返回 QuerySet 的方法可以进行链式调用
+
+| 方法   | 参数   | 返回类型 | 说明                   | 例子                                                              |
+|--------|--------|----------|------------------------|-------------------------------------------------------------------|
+| filter | **dict | QuerySet | 过滤出一批记录         | `dst.records.filter(title="new title")`                           |
+| all    | /      | QuerySet | 返回当前记录集合的拷贝 | `dst.records.filter(title="new title").all()`                     |
+| get    | **dict | Record   | 单条记录               | `dst.records.get(title="new title")`                              |
+| count  | /      | int      | 记录总数               | `dst.records.filter(title="new title").count()`                   |
+| last   | /      | Record   | 最后一条记录           | `dst.records.filter(title="new title").last()`                    |
+| first  | /      | Record   | 第一条记录             | `dst.records.filter(title="new title").first()`                   |
+| update | **dict | int      | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
+| delete | /      | int      | 删除成功的记录数       | `dst.records.filter(title="new title").delete()`                  |
+
+### all 参数
+
+当首次调用 all 不传入任何参数时，默认加载全部记录，后续的 filter、get 均在本地缓存数据中进行，all 方法仅在首次调用时，从服务端获取数据。
+
+当调用 all 时，显式的传入参数，则利用服务端计算返回部分数据集。
+
+| 参数            | 类型           | 说明                                                                          | 例子                           |
+|-----------------|----------------|-------------------------------------------------------------------------------|--------------------------------|
+| viewId          | str            | 视图ID。默认为维格表中第一个视图。请求会返回视图中经过视图中筛选/排序后的结果 |                                |
+| pageNum         | int            | 默认 1                                                                        |                                |
+| pageSize        | int            | 默认 100 ， 最大 1000                                                         |                                |
+| sort            | dict[]         | 指定排序的字段，会覆盖视图排序条件                                            | `[{ '列名称或者 ID': 'asc' }]` |
+| recordIds       | str[]          | 返回指定 recordId 的记录集                                                    | `['recordId1', 'recordId2']`   |
+| fields          | str[]          | 只有指定字段会返回                                                            |                                |
+| filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                |
+| maxRecords      | int            | 限制返回记录数，默认 5000                                                     |                                |
+| fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                |
+
+
+参见：[公式使用方式](https://vika.cn/help/tutorial-getting-started-with-formulas/)
 
 ## 开发测试
 
@@ -113,3 +168,12 @@ python -m unittest test
 record.tags = ["目前 tags 字段中不存在的选项"]
 ```
 目前不可以，你只能赋值已经存在的选项。后续会支持 :D
+
+### 单个表格最大支持多少条记录？
+
+目前支持单表支持 5w 条记录
+
+## TODO
+
++ [ ] 优化数据集较大时的请求
++ [ ] 网络请求封装 & 错误处理

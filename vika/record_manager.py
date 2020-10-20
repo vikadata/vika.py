@@ -34,8 +34,6 @@ class QuerySet:
         """
         dst.records.filter(title=None).update(status="Pending")
         """
-        # TODO: 构建批量更新记录的 req body
-
         patch_update_records_data = []
         for record in iter(self._records):
             data = {"recordId": record.id, "fields": kwargs}
@@ -141,7 +139,7 @@ class RecordManager:
 
     def get(self, **kwargs):
         """
-        book = dst_book.get(ISBN="9787506341271")
+        book = dst_books.records.get(ISBN="9787506341271")
         print(book.title)
         """
         self._fetched_by = "get"
@@ -150,7 +148,7 @@ class RecordManager:
 
     def filter(self, **kwargs):
         """
-        songs = dst_songs.filter(artist="faye wong")
+        songs = dst_songs.records.filter(artist="faye wong")
         for song in songs:
             print(song.title)
         """
