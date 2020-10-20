@@ -1,6 +1,6 @@
 # Vika
 
-[Vika](https://vika.cn) Python SDK [WIP]
+[Vika](https://vika.cn) Python SDK 是对维格表 Fusion API 的官方封装，提供类似 Django ORM 风格的 API。
 
 ![demo](https://s1.vika.cn/space/2020/10/19/f75caf2a161b465facfd170598ea0934)
 
@@ -59,7 +59,7 @@ record.update({
 # 附件字段更新
 my_file = dst.upload_file(<本地或网络文件路径>)
 record.files = [my_file]
-# 初始化 datasheet 时指定附件字段，可以使用下面方法直接赋值。
+# 初始化 datasheet 时指定附件字段，可以使用下面方法直接赋值。
 dst = vika.datasheet("dstid", attachment_fields=["cover"])
 record.cover = [<本地或网络文件路径>]
 
@@ -111,7 +111,7 @@ dst.records.filter(title=None).delete()
 
 当首次调用 all 不传入任何参数时，默认加载全部记录，后续的 filter、get 均在本地缓存数据中进行，all 方法仅在首次调用时，从服务端获取数据。
 
-当调用 all 时，显式的传入参数，则利用服务端计算返回部分数据集。
+当调用 all 时，显式地传入参数，则利用服务端计算返回部分数据集。
 
 | 参数            | 类型           | 说明                                                                          | 例子                           |
 |-----------------|----------------|-------------------------------------------------------------------------------|--------------------------------|
@@ -171,9 +171,10 @@ record.tags = ["目前 tags 字段中不存在的选项"]
 
 ### 单个表格最大支持多少条记录？
 
-目前支持单表支持 5w 条记录
+目前单表最大支持 5w 条记录
 
 ## TODO
 
-+ [ ] 优化数据集较大时的请求
++ [ ] 优化数据集较大时的网络请求
 + [ ] 网络请求封装 & 错误处理
++ [ ] filter 操作符
