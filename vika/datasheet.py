@@ -1,6 +1,6 @@
 import io
 from urllib.parse import urljoin
-
+import mimetypes
 import requests
 
 from .exceptions import RecordDoesNotExist
@@ -177,7 +177,10 @@ class Datasheet:
         else:
             with open(file_url, "rb") as upload_file:
                 r = self.vika.request.post(
-                    api_endpoint, files={"files": upload_file}
+                    api_endpoint,
+                    files={
+                        "files": (file_url, upload_file, mimetypes.guess_type(file_url)[0])
+                    },
                 ).json()
                 r = RawUploadFileResponse(**r)
                 if r.success:
