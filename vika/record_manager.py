@@ -23,10 +23,10 @@ class QuerySet:
         return Record(self._dst, self._records[0])
 
     def delete(self) -> bool:
-        r = self._dst.delete_records([rec["recordId"] for rec in self._records])
-        if r:
+        record = self._dst.delete_records([rec["recordId"] for rec in self._records])
+        if record:
             self._dst.remove_records(self._records)
-        return r
+        return record
 
     def _clone(self):
         return QuerySet(self._dst, self._records)
@@ -40,8 +40,8 @@ class QuerySet:
             data = {"recordId": record.id, "fields": kwargs}
             patch_update_records_data.append(data)
         if patch_update_records_data:
-            r = self._dst.update_records(patch_update_records_data)
-            return r
+            record = self._dst.update_records(patch_update_records_data)
+            return record
         return 0
 
     def count(self):
@@ -52,8 +52,8 @@ class QuerySet:
             return self.filter(**kwargs).get()
         if self._records:
             return Record(self._dst, self._records[0])
-        else:
-            return Exception("Record Not Found")
+
+        raise Exception("Record Not Found")
 
     def all(self):
         return QuerySet(self._dst, self._dst._records)
@@ -95,20 +95,22 @@ class RecordManager:
     def bulk_create(self, data):
         records = []
         for chunk in chunks(data, MAX_COUNT_CREATE_RECORDS_ONCE):
-            r = self._dst.create_records(chunk)
-            if r.success:
-                records += r.data.records
+            resp = self._dst.create_records(chunk)
+            if resp.success:
+                records += resp.data.records
         self._dst.append_records(records)
         if len(data) != len(records):
             print(f"Warning: {len(data)-len(records)} records create fail")
         return [Record(self._dst, record) for record in records]
 
     def create(self, data):
-        r = self._dst.create_records(data)
-        if r.success:
-            records = r.data.records
+        resp = self._dst.create_records(data)
+        if resp.success:
+            records = resp.data.records
             self._dst.append_records(records)
             return Record(self._dst, records[0])
+
+        return None
 
     def count(self):
         self.check_data()
