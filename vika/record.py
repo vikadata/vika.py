@@ -30,11 +30,11 @@ class Record:
 
     def delete(self) -> bool:
         self._check_record_status()
-        record = self._datasheet.delete_records([self._id])
-        if record:
+        is_del_success = self._datasheet.delete_records([self._id])
+        if is_del_success:
             self._datasheet.remove_records([self._record])
             self._is_del = True
-        return record
+        return is_del_success
 
     def _is_attachment_field(self, field_name):
         return field_name in self._datasheet.attachment_fields
@@ -49,8 +49,8 @@ class Record:
                 if not value:
                     value = None
             data = {"recordId": self._id, "fields": {key: value}}
-            record = self._datasheet.update_records(data)
-            if record == 1:
+            update_success_count = self._datasheet.update_records(data)
+            if update_success_count == 1:
                 self._record.data[key] = value
 
     def json(self):

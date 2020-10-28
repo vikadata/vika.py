@@ -23,10 +23,10 @@ class QuerySet:
         return Record(self._dst, self._records[0])
 
     def delete(self) -> bool:
-        record = self._dst.delete_records([rec["recordId"] for rec in self._records])
-        if record:
+        is_del_success = self._dst.delete_records([rec["recordId"] for rec in self._records])
+        if is_del_success:
             self._dst.remove_records(self._records)
-        return record
+        return is_del_success
 
     def _clone(self):
         return QuerySet(self._dst, self._records)
@@ -40,8 +40,8 @@ class QuerySet:
             data = {"recordId": record.id, "fields": kwargs}
             patch_update_records_data.append(data)
         if patch_update_records_data:
-            record = self._dst.update_records(patch_update_records_data)
-            return record
+            update_success_count = self._dst.update_records(patch_update_records_data)
+            return update_success_count
         return 0
 
     def count(self):
