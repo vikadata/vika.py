@@ -49,20 +49,20 @@ class Vika:
         page_num = kwargs.get("pageNum", 1)
         current_total = page_size * page_num
         params = {"pageSize": page_size}
-        for key in kwargs.keys():
+        for key in kwargs:
             if key in API_GET_DATASHEET_QS_SET:
                 params.update({key: kwargs.get(key)})
-        r = self.request.get(
+        resp = self.request.get(
             urljoin(self.api_base, f"/fusion/v1/datasheets/{dst_id}/records"),
             params=params,
         ).json()
-        r = RawGETResponse(**r)
+        resp = RawGETResponse(**resp)
         records = []
-        if r.success:
-            records += r.data.records
-            if current_total < r.data.total:
+        if resp.success:
+            records += resp.data.records
+            if current_total < resp.data.total:
                 kwargs.update({"pageNum": page_num + 1})
                 records += self.fetch_datasheet(dst_id, **kwargs)
         else:
-            print(f"[{dst_id}] get page:{page_num} fail\n {r.message}")
+            print(f"[{dst_id}] get page:{page_num} fail\n {resp.message}")
         return records
