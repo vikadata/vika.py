@@ -1,4 +1,6 @@
-from .const import MAX_COUNT_CREATE_RECORDS_ONCE
+import time
+
+from .const import MAX_COUNT_CREATE_RECORDS_ONCE, QPS
 from .record import Record
 from .utils import chunks
 
@@ -98,6 +100,8 @@ class RecordManager:
             r = self._dst.create_records(chunk)
             if r.success:
                 records += r.data.records
+                # rate limit
+                time.sleep(1 / QPS)
         self._dst.append_records(records)
         if len(data) != len(records):
             print(f"Warning: {len(data)-len(records)} records create fail")
