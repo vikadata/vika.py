@@ -15,24 +15,26 @@ class Record:
         if self._is_del:
             return RecordWasDeleted()
 
+        return None
+
     def __str__(self):
         return f"{self._id}"
 
     def __getattr__(self, key):
         if key in self._record.data:
             return self._record.data.get(key)
-        else:
-            # FIXME 因为目前缺少  Meta， 这里返回 None。后续可以通过 meta 判断是否是合法的 key
-            # return Exception(f"record has no field:[{key}]")
-            return None
+
+        # FIXME 因为目前缺少  Meta， 这里返回 None。后续可以通过 meta 判断是否是合法的 key
+        # return Exception(f"record has no field:[{key}]")
+        return None
 
     def delete(self) -> bool:
         self._check_record_status()
-        r = self._datasheet.delete_records([self._id])
-        if r:
+        is_del_success = self._datasheet.delete_records([self._id])
+        if is_del_success:
             self._datasheet.remove_records([self._record])
             self._is_del = True
-        return r
+        return is_del_success
 
     def _is_attachment_field(self, field_name):
         return field_name in self._datasheet.attachment_fields
@@ -41,14 +43,14 @@ class Record:
         if key.startswith("_"):
             super().__setattr__(key, value)
         else:
-            if self._is_attachment_field(key) and type(value) is not dict:
-                if type(value) is list:
+            if self._is_attachment_field(key) and isinstance(value, dict):
+                if isinstance(value, list):
                     value = [self._datasheet.upload_file(url) for url in value]
                 if not value:
                     value = None
             data = {"recordId": self._id, "fields": {key: value}}
-            r = self._datasheet.update_records(data)
-            if r == 1:
+            update_success_count = self._datasheet.update_records(data)
+            if update_success_count == 1:
                 self._record.data[key] = value
 
     def json(self):
