@@ -3,6 +3,7 @@ import time
 from .const import MAX_COUNT_CREATE_RECORDS_ONCE, QPS
 from .record import Record
 from .utils import chunks
+from .exceptions import RecordDoesNotExist
 
 
 class QuerySet:
@@ -57,7 +58,7 @@ class QuerySet:
         if self._records:
             return Record(self._dst, self._records[0])
 
-        raise Exception("Record Not Found")
+        raise RecordDoesNotExist()
 
     def all(self):
         return QuerySet(self._dst, self._dst._records)
@@ -68,11 +69,14 @@ class QuerySet:
         for song in songs:
             print(song.title)
         """
+        kwargs = {self._dst.trans_key(k): v for k, v in kwargs.items()}
 
         def filter_record(record) -> bool:
             return all(
                 [
-                    record.id == v if k == "recordId" else record.data.get(k) == v
+                    record.id == v
+                    if k in ["recordId", "_id"]
+                    else record.data.get(k) == v
                     for k, v in kwargs.items()
                 ]
             )
@@ -91,6 +95,13 @@ class RecordManager:
         if not self._dst._has_fetched_data or (
             self._fetched_by == "all" and kwargs != self._fetched_with
         ):
+            _fieldKey = kwargs.get("fieldKey")
+            if _fieldKey and _fieldKey != self._dst.field_key:
+                # TODO: logger warning
+                print(
+                    f'It seems that you set field_key when you init datasheet, all(filedKey="{_fieldKey}") wont work'
+                )
+            kwargs.update(fieldKey=self._dst.field_key)
             records = self._dst.vika.fetch_datasheet(self._dst.id, **kwargs)
             self._dst.set_records(records)
             self._dst.has_fetched_data = True

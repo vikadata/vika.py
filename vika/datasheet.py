@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 import mimetypes
 import requests
 
-from .exceptions import RecordDoesNotExist
+from .exceptions import RecordDoesNotExist, ErrorFieldKey
 from .record import Record
 from .record_manager import RecordManager
 from .vika_type import (
@@ -21,8 +21,13 @@ class Datasheet:
         self.vika = vika
         self.id = dst_id
         self._init_records(records)
-        self.attachment_fields = kwargs.get("attachment_fields", [])
         self._has_fetched_data = False
+        field_key = kwargs.get("field_key", "name")
+        if field_key not in ["name", "id"]:
+            raise Exception("Error field_key, plz use「name」 or 「id」")
+        self.field_key = field_key
+        field_key_map = kwargs.get("field_key_map", None)
+        self.field_key_map = field_key_map
 
     def _init_records(self, records: RawRecords):
         _record_ids = []
@@ -109,12 +114,15 @@ class Datasheet:
         更新记录
         """
         if type(data) is list:
-            data = {"records": data}
+            data = {"records": data, "fieldKey": self.field_key}
         else:
-            data = {"records": [data]}
+            data = {"records": [data], "fieldKey": self.field_key}
         r = self.vika.request.patch(self._api_endpoint, json=data).json()
-        r = RawPatchResponse(**r)
-        return self._update_records(r.data.records)
+        if r["success"]:
+            r = RawPatchResponse(**r)
+            return self._update_records(r.data.records)
+        else:
+            raise Exception(r["message"])
 
     def field_check(self, field):
         """
@@ -122,16 +130,47 @@ class Datasheet:
         """
         pass
 
+    def trans_key(self, key):
+        field_key_map = self.field_key_map
+        if key in ["_id", "recordId"]:
+            return key
+        if field_key_map:
+            _key = field_key_map.get(key, None)
+            return _key
+        return key
+
+    def trans_data(self, data):
+        field_key_map = self.field_key_map
+        if field_key_map:
+            _data = {}
+            for k, v in data.items():
+                _k = field_key_map.get(k)
+                if not _k:
+                    return ErrorFieldKey()
+                _data[_k] = v
+            return _data
+        return data
+
     def create_records(self, data) -> RawPostResponse:
         """
         添加记录
         """
         if type(data) is list:
-            data = {"records": [{"fields": item} for item in data]}
+            data = {
+                "records": [{"fields": self.trans_data(item)} for item in data],
+                "fieldKey": self.field_key,
+            }
         else:
-            data = {"records": [{"fields": data}]}
+            data = {
+                "records": [{"fields": self.trans_data(data)}],
+                "fieldKey": self.field_key,
+            }
         r = self.vika.request.post(self._api_endpoint, json=data).json()
-        return RawPostResponse(**r)
+        if r["success"]:
+            r = RawPostResponse(**r)
+            return r
+        else:
+            raise Exception(r["message"])
 
     def delete_records(self, rec_list) -> bool:
         """
@@ -179,7 +218,11 @@ class Datasheet:
                 r = self.vika.request.post(
                     api_endpoint,
                     files={
-                        "files": (file_url, upload_file, mimetypes.guess_type(file_url)[0])
+                        "files": (
+                            file_url,
+                            upload_file,
+                            mimetypes.guess_type(file_url)[0],
+                        )
                     },
                 ).json()
                 r = RawUploadFileResponse(**r)

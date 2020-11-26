@@ -12,8 +12,6 @@ class Vika:
         self.request = requests.Session()
         self.auth(token)
         self._api_base = API_BASE
-        # name | id
-        self.field_key = kwargs.get("field_key", "name")
 
     @property
     def api_base(self):
@@ -30,7 +28,6 @@ class Vika:
         self.request.headers.update({"Authorization": f"Bearer {token}"})
 
     def datasheet(self, dst_id_or_url, **kwargs):
-        attachment_fields = kwargs.get("attachment_fields", [])
         if dst_id_or_url.startswith("dst"):
             dst_id = dst_id_or_url
         elif dst_id_or_url.startswith("http"):
@@ -41,10 +38,11 @@ class Vika:
             if view_id and view_id.startswith("viw"):
                 kwargs.update({"viewId": view_id})
         else:
-            return Exception("Bad URL")
-        return Datasheet(self, dst_id, records=[], attachment_fields=attachment_fields)
+            raise Exception("Bad URL")
+        return Datasheet(self, dst_id, records=[], **kwargs)
 
     def fetch_datasheet(self, dst_id, **kwargs):
+        # kwargs.update(fieldKey=self.field_key)
         page_size = kwargs.get("pageSize", DEFAULT_PAGE_SIZE)
         page_num = kwargs.get("pageNum", 1)
         current_total = page_size * page_num

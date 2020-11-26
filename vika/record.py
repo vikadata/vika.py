@@ -2,7 +2,7 @@ from .exceptions import RecordWasDeleted
 
 
 class Record:
-    def __init__(self, datasheet, record: str):
+    def __init__(self, datasheet, record):
         self._datasheet = datasheet
         self._id = record.id
         self._is_del = False
@@ -21,11 +21,13 @@ class Record:
         return f"{self._id}"
 
     def __getattr__(self, key):
-        if key in self._record.data:
-            return self._record.data.get(key)
+        trans_key = self._datasheet.trans_key(key)
+        if not trans_key:
+            raise Exception(f"record has no field:[{trans_key}]")
+        if trans_key in self._record.data:
+            return self._record.data.get(trans_key)
 
         # FIXME 因为目前缺少  Meta， 这里返回 None。后续可以通过 meta 判断是否是合法的 key
-        # return Exception(f"record has no field:[{key}]")
         return None
 
     def delete(self) -> bool:
@@ -36,18 +38,19 @@ class Record:
             self._is_del = True
         return is_del_success
 
-    def _is_attachment_field(self, field_name):
-        return field_name in self._datasheet.attachment_fields
+    # def _is_attachment_field(self, field_name):
+    #     return field_name in self._datasheet.attachment_fields
 
-    def __setattr__(self, key, value):
-        if key.startswith("_"):
-            super().__setattr__(key, value)
+    def __setattr__(self, _key, value):
+        if _key.startswith("_"):
+            super().__setattr__(_key, value)
         else:
-            if self._is_attachment_field(key) and isinstance(value, dict):
-                if isinstance(value, list):
-                    value = [self._datasheet.upload_file(url) for url in value]
-                if not value:
-                    value = None
+            key = self._datasheet.trans_key(_key)
+            # if self._is_attachment_field(key) and isinstance(value, dict):
+            #     if isinstance(value, list):
+            #         value = [self._datasheet.upload_file(url) for url in value]
+            #     if not value:
+            #         value = None
             data = {"recordId": self._id, "fields": {key: value}}
             update_success_count = self._datasheet.update_records(data)
             if update_success_count == 1:
@@ -58,7 +61,8 @@ class Record:
         return self._record.data
 
     def make_update_body(self, data):
-        data = {"recordId": self._id, "fields": data}
+        _data = self._datasheet.trans_data(data)
+        data = {"recordId": self._id, "fields": _data}
         return data
 
     def update(self, data):

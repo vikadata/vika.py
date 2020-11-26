@@ -26,3 +26,11 @@ class RecordWasDeleted(Exception):
     """
 
     pass
+
+
+class ErrorFieldKey(Exception):
+    """
+    错误的 fieldKey
+    """
+
+    pass

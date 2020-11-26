@@ -13,9 +13,7 @@ python3.6 +
 ### 安装
 
 ```shell
-pip install vika
-# or
-pipenv install vika
+pip install --upgrade vika
 ```
 
 ### 获取 API TOKEN
@@ -59,9 +57,7 @@ record.update({
 # 附件字段更新
 my_file = dst.upload_file(<本地或网络文件路径>)
 record.files = [my_file]
-# 初始化 datasheet 时指定附件字段，可以使用下面方法直接赋值。
-dst = vika.datasheet("dstid", attachment_fields=["cover"])
-record.cover = [<本地或网络文件路径>]
+
 
 # 过滤记录
 songs = dst_songs.records.filter(artist="faye wong")
@@ -77,6 +73,53 @@ print(book.title)
 
 # 删除符合过滤条件的一批记录
 dst.records.filter(title=None).delete()
+```
+
+### 字段映射
+
+对于中文用户，表格的字段名通常是中文，虽然 Python 支持中文变量名，但是依然会出现中文字段名不符合变量规范的情况。因此你不得不回退到使用 fieldId 作为 key 的情况，致使代码可读性变差。
+
+为了改善这种情况，Python SDK 提供了字段映射的功能。
+
+| Bug 标题\!     | Bug状态 |
+|----------------|---------|
+| 登陆后页面崩溃 | 待修复  |
+|                |         |
+
+
+```python 
+dst = vika.datasheet("dstt3KGCKtp11fgK0t",field_key_map={
+  "title": "Bug 标题!",
+  "state": "Bug状态",
+})
+
+record = dst.records.get()
+print(record.title)
+# "登陆后页面崩溃"
+print(record.state)
+# "待修复"
+record.update(state="已修复")
+```
+
+保留使用 field id 作 key 的用法
+```python
+bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id")
+row = bug.records.get(flddpSLHEzDPQ="登陆后页面崩溃")
+row.flddpSLHEzDPQ = "登陆后页面崩溃"
+row.update({
+  "flddpSLHEzDPQ": "登陆后页面崩溃",
+  "fldwvNDf9teD2": "已修复"
+})
+
+```
+
+指定 `field_key="id"` 时，再指定 `field_key_map` 对应的键值应该是 `fieldId`
+
+```python
+bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
+  "title":"flddpSLHEzDPQ",
+  "state":"fldwvNDf9teD2",
+})
 ```
 
 ## API 
