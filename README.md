@@ -33,7 +33,7 @@ dst = vika.datasheet("dstt3KGCKtp11fgK0t")
 # dst = vika.datasheet("https://vika.cn/space/spcxcvEBLXf7X/workbench/dstt3KGCKtp11fgK0t/viwmKtRiYcPfk")
 
 # 创建记录
-record = dst.records.create({"title":"new record from Python SDK"}):
+record = dst.records.create({"title":"new record from Python SDK"})
 print(record.title)
 #print(record.标题)
 
