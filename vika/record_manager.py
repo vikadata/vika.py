@@ -19,6 +19,9 @@ class QuerySet:
             record = Record(self._dst, record)
             yield record
 
+    def __getitem__(self, index):
+        return Record(self._dst, self._records[index])
+
     def last(self):
         return Record(self._dst, self._records[-1])
 
@@ -26,9 +29,7 @@ class QuerySet:
         return Record(self._dst, self._records[0])
 
     def delete(self) -> bool:
-        is_del_success = self._dst.delete_records(
-            [rec["recordId"] for rec in self._records]
-        )
+        is_del_success = self._dst.delete_records([rec._id for rec in self])
         if is_del_success:
             self._dst.remove_records(self._records)
         return is_del_success
