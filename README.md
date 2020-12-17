@@ -1,4 +1,4 @@
-![vika.py](https://socialify.git.ci/vikadata/vika.py/image?description=1&descriptionEditable=Vika%20is%20a%20No-Code%20database%20platform%20for%20users%20and%20developers%EF%BC%8Chere%20is%20it%27s%20Python%20SDK%20for%20integration.%20&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fs1.vika.cn%2Fspace%2F2020%2F09%2F04%2F9fcd0d98c2c74274840fcde3341d5164&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
+![vika.py](https://socialify.git.ci/vikadata/vika.py/image?description=1&descriptionEditable=Vika%20is%20a%20API-based%20SaaS%20database%20platform%20for%20users%20and%20developers%20here%27s%20Python%20SDK%20for%20integration.&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fs1.vika.cn%2Fspace%2F2020%2F09%2F04%2F9fcd0d98c2c74274840fcde3341d5164&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
 
 [Vika](https://vika.cn) Python SDK 是对维格表 Fusion API 的官方封装，提供类似 Django ORM 风格的 API。
 
