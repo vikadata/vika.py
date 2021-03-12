@@ -45,8 +45,19 @@ class QuerySet:
         for record in iter(self._records):
             data = {"recordId": record.id, "fields": kwargs}
             patch_update_records_data.append(data)
+        this_batch_records_len = len(patch_update_records_data)
+        has_failed = False
         if patch_update_records_data:
-            update_success_count = self._dst.update_records(patch_update_records_data)
+            update_success_count = 0
+            for chunk in chunks(patch_update_records_data, MAX_COUNT_CREATE_RECORDS_ONCE):
+                try:
+                    update_success_count += self._dst.update_records(chunk)
+                    time.sleep(1 / QPS)
+                except:
+                    has_failed = True
+            if has_failed:
+                failed_count = this_batch_records_len - update_success_count
+                print(f"{failed_count} records update failed")
             return update_success_count
         return 0
 

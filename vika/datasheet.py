@@ -15,7 +15,6 @@ from .vika_type import (
     RawRecord,
 )
 
-
 class Datasheet:
     def __init__(self, vika, dst_id, records: RawRecords, **kwargs):
         self.vika = vika
