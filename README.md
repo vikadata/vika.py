@@ -186,6 +186,7 @@ cp .env.example .env
 ``` shell
 # 安装依赖
 pipenv install --pre
+pipenv shell
 python -m unittest test
 ```
 
