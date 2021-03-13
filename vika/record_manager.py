@@ -29,10 +29,27 @@ class QuerySet:
         return Record(self._dst, self._records[0])
 
     def delete(self) -> bool:
-        is_del_success = self._dst.delete_records([rec._id for rec in self])
-        if is_del_success:
-            self._dst.remove_records(self._records)
-        return is_del_success
+        del_res = []
+        all_count = len(self._records)
+        failed_records = []
+        res = True
+        for chunk in chunks(self._records, MAX_COUNT_CREATE_RECORDS_ONCE):
+            try:
+                is_del_success = self._dst.delete_records([rec.id for rec in chunk])
+                if is_del_success:
+                    self._dst.remove_records(chunk)
+                    del_res.append(is_del_success)
+                else:
+                    failed_records += chunk
+                    del_res.append(is_del_success)
+                time.sleep(1 / QPS)
+            except Exception as e:
+                print(e)
+                res = False
+        res = all(del_res)
+        if not res:
+            print(f"WARNING: part of records delete failed, all: {all_count}, success:{ all_count - len(failed_records)}, failed: {len(failed_records)}")
+        return res
 
     def _clone(self):
         return QuerySet(self._dst, self._records)
@@ -53,7 +70,7 @@ class QuerySet:
                 try:
                     update_success_count += self._dst.update_records(chunk)
                     time.sleep(1 / QPS)
-                except:
+                except Exception:
                     has_failed = True
             if has_failed:
                 failed_count = this_batch_records_len - update_success_count
