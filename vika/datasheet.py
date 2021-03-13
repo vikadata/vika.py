@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 import mimetypes
 import requests
 
-from .exceptions import RecordDoesNotExist, ErrorFieldKey
+from .exceptions import RecordDoesNotExist
 from .record import Record
 from .record_manager import RecordManager
 from .vika_type import (
@@ -14,6 +14,7 @@ from .vika_type import (
     RawRecords,
     RawRecord,
 )
+
 
 class Datasheet:
     def __init__(self, vika, dst_id, records: RawRecords, **kwargs):
@@ -134,7 +135,7 @@ class Datasheet:
         if key in ["_id", "recordId"]:
             return key
         if field_key_map:
-            _key = field_key_map.get(key, None)
+            _key = field_key_map.get(key, key)
             return _key
         return key
 
@@ -143,9 +144,7 @@ class Datasheet:
         if field_key_map:
             _data = {}
             for k, v in data.items():
-                _k = field_key_map.get(k)
-                if not _k:
-                    return ErrorFieldKey()
+                _k = field_key_map.get(k, k)
                 _data[_k] = v
             return _data
         return data
