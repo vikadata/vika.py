@@ -97,7 +97,7 @@ print(record.title)
 # "登陆后页面崩溃"
 print(record.state)
 # "待修复"
-record.update(state="已修复")
+record.state="已修复"
 ```
 
 保留使用 field id 作 key 的用法
