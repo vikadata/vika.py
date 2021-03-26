@@ -70,8 +70,12 @@ dst_tasks.records.filter(title=None).update(status="Pending")
 book = dst_book.records.get(ISBN="9787506341271")
 print(book.title)
 
+# 将 record 对象转化为 json
+record.json()
+
 # 删除符合过滤条件的一批记录
 dst.records.filter(title=None).delete()
+
 ```
 
 ### 字段映射
@@ -81,7 +85,7 @@ dst.records.filter(title=None).delete()
 为了改善这种情况，Python SDK 提供了字段映射的功能。
 
 | Bug 标题\!     | Bug状态 |
-|----------------|---------|
+| -------------- | ------- |
 | 登陆后页面崩溃 | 待修复  |
 |                |         |
 
@@ -124,9 +128,10 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 ## API 
 
 ### records 方法
+`dst.records` 管理表格中的记录。
 
 | 方法        | 参数   | 返回类型 | 说明                            | 例子                                                                         |
-|-------------|--------|----------|---------------------------------|------------------------------------------------------------------------------|
+| ----------- | ------ | -------- | ------------------------------- | ---------------------------------------------------------------------------- |
 | create      | dict   | Record   | 创建单条记录                    | `dst.records.create({"title":"new title"})`                                  |
 | bulk_create | dict[] | Record[] | 批量创建多条记录                | `dst.records.bulk_create([{"title":"new record1"},{"title":"new record2"}])` |
 | all         | **dict | QuerySet | 返回记录集合,可传参定制返回内容 | `dst.records.all()`                                                          |
@@ -139,7 +144,7 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 返回 QuerySet 的方法可以进行链式调用
 
 | 方法   | 参数   | 返回类型 | 说明                   | 例子                                                              |
-|--------|--------|----------|------------------------|-------------------------------------------------------------------|
+| ------ | ------ | -------- | ---------------------- | ----------------------------------------------------------------- |
 | filter | **dict | QuerySet | 过滤出一批记录         | `dst.records.filter(title="new title")`                           |
 | all    | /      | QuerySet | 返回当前记录集合的拷贝 | `dst.records.filter(title="new title").all()`                     |
 | get    | **dict | Record   | 单条记录               | `dst.records.get(title="new title")`                              |
@@ -149,23 +154,32 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 | update | **dict | int      | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
 | delete | /      | bool     | 是否删除成功           | `dst.records.filter(title="new title").delete()`                  |
 
+### Record
+
+查询出来的 QuerySet 是一个 Record 的集合。单个 Record 可以通过 `record.字段名` 的方式获取值。
+ 
+| 方法 | 参数 | 返回类型 | 说明                     | 例子            |
+| ---- | ---- | -------- | ------------------------ | --------------- |
+| json | /    | dict     | 返回当前记录的所有字段值 | `record.json()` |
+
+
 ### all 参数
 
 当首次调用 all 不传入任何参数时，默认加载第一个视图的记录，后续的 filter、get 均在本地缓存数据中进行，all 方法仅在首次调用时，从服务端获取数据。
 
 当调用 all 时，显式地传入参数，则利用服务端计算返回部分数据集。
 
-| 参数            | 类型           | 说明                                                                          | 例子                           |
-|-----------------|----------------|-------------------------------------------------------------------------------|--------------------------------|
-| viewId          | str            | 视图ID。默认为维格表中第一个视图。请求会返回视图中经过视图中筛选/排序后的结果 |                                |
-| pageNum         | int            | 默认 1                                                                        |                                |
-| pageSize        | int            | 默认 100 ， 最大 1000                                                         |                                |
+| 参数            | 类型           | 说明                                                                          | 例子                                  |
+| --------------- | -------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
+| viewId          | str            | 视图ID。默认为维格表中第一个视图。请求会返回视图中经过视图中筛选/排序后的结果 |                                       |
+| pageNum         | int            | 默认 1                                                                        |                                       |
+| pageSize        | int            | 默认 100 ， 最大 1000                                                         |                                       |
 | sort            | dict[]         | 指定排序的字段，会覆盖视图排序条件                                            | `[{ field: 'field1': order: 'asc' }]` |
-| recordIds       | str[]          | 返回指定 recordId 的记录集                                                    | `['recordId1', 'recordId2']`   |
-| fields          | str[]          | 只有指定字段会返回                                                            |                                |
-| filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                |
-| maxRecords      | int            | 限制返回记录数，默认 5000                                                     |                                |
-| fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                |
+| recordIds       | str[]          | 返回指定 recordId 的记录集                                                    | `['recordId1', 'recordId2']`          |
+| fields          | str[]          | 只有指定字段会返回                                                            |                                       |
+| filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                       |
+| maxRecords      | int            | 限制返回记录数，默认 5000                                                     |                                       |
+| fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                       |
 
 
 参见：[公式使用方式](https://vika.cn/help/tutorial-getting-started-with-formulas/)
