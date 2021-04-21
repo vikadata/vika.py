@@ -70,8 +70,12 @@ dst_tasks.records.filter(title=None).update(status="Pending")
 book = dst_book.records.get(ISBN="9787506341271")
 print(book.title)
 
+# 将 record 对象转化为 json
+record.json()
+
 # 删除符合过滤条件的一批记录
 dst.records.filter(title=None).delete()
+
 ```
 
 ### 字段映射
@@ -124,6 +128,7 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 ## API 
 
 ### records 方法
+`dst.records` 管理表格中的记录。
 
 | 方法        | 参数   | 返回类型 | 说明                            | 例子                                                                         |
 | ----------- | ------ | -------- | ------------------------------- | ---------------------------------------------------------------------------- |
@@ -149,6 +154,13 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 | update | **dict | int      | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
 | delete | /      | bool     | 是否删除成功           | `dst.records.filter(title="new title").delete()`                  |
 
+### Record
+
+查询出来的 QuerySet 是一个 Record 的集合。单个 Record 可以通过 `record.字段名` 的方式获取值。
+ 
+| 方法 | 参数 | 返回类型 | 说明                     | 例子            |
+| ---- | ---- | -------- | ------------------------ | --------------- |
+| json | /    | dict     | 返回当前记录的所有字段值 | `record.json()` |
 
 ### 字段值
 
@@ -180,7 +192,6 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 | 神奇关联   | str[]                |
 | 神奇引用   | any[]                |
 | 智能公式   | str / bool           |
-
 
 
 ### all 参数
