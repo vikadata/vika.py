@@ -18,7 +18,9 @@ class Record:
         return None
 
     def __str__(self):
-        return f"{self._id}"
+        return f"(Record: {self._id})"
+
+    __repr__ = __str__
 
     def __getattr__(self, key):
         trans_key = self._datasheet.trans_key(key)

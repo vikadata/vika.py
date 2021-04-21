@@ -42,11 +42,7 @@ class Vika:
         return Datasheet(self, dst_id, records=[], **kwargs)
 
     def fetch_datasheet(self, dst_id, **kwargs):
-        # kwargs.update(fieldKey=self.field_key)
-        page_size = kwargs.get("pageSize", DEFAULT_PAGE_SIZE)
-        page_num = kwargs.get("pageNum", 1)
-        current_total = page_size * page_num
-        params = {"pageSize": page_size}
+        params = {}
         for key in kwargs:
             if key in API_GET_DATASHEET_QS_SET:
                 params.update({key: kwargs.get(key)})
@@ -55,12 +51,24 @@ class Vika:
             params=params,
         ).json()
         resp = RawGETResponse(**resp)
+        return resp
+
+    def fetch_datasheet_all(self, dst_id, **kwargs):
+        """
+        不主动传入 pageSize 和 pageNum 时候，主动加载全部记录。
+        """
+        page_size = kwargs.get("pageSize", DEFAULT_PAGE_SIZE)
+        page_num = kwargs.get("pageNum", 1)
+        page_params = {"pageSize": page_size, "pageNum": page_num}
+        kwargs.update(page_params)
         records = []
+        resp = self.fetch_datasheet(dst_id, **kwargs)
         if resp.success:
             records += resp.data.records
+            current_total = page_size * page_num
             if current_total < resp.data.total:
                 kwargs.update({"pageNum": page_num + 1})
-                records += self.fetch_datasheet(dst_id, **kwargs)
+                records += self.fetch_datasheet_all(dst_id, **kwargs)
         else:
             print(f"[{dst_id}] get page:{page_num} fail\n {resp.message}")
         return records

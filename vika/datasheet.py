@@ -21,7 +21,7 @@ class Datasheet:
         self.vika = vika
         self.id = dst_id
         self._init_records(records)
-        self._has_fetched_data = False
+        self.has_fetched_data = False
         field_key = kwargs.get("field_key", "name")
         if field_key not in ["name", "id"]:
             raise Exception("Error field_key, plz use「name」 or 「id」")

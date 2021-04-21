@@ -19,6 +19,11 @@ class QuerySet:
             record = Record(self._dst, record)
             yield record
 
+    def __str__(self):
+        return f"(QuerySet: {self.count()} records)"
+
+    __repr__ = __str__
+
     def __getitem__(self, index):
         return Record(self._dst, self._records[index])
 
@@ -32,7 +37,6 @@ class QuerySet:
         del_res = []
         all_count = len(self._records)
         failed_records = []
-        res = True
         for chunk in chunks(self._records, MAX_COUNT_CREATE_RECORDS_ONCE):
             try:
                 is_del_success = self._dst.delete_records([rec.id for rec in chunk])
@@ -45,10 +49,10 @@ class QuerySet:
                 time.sleep(1 / QPS)
             except Exception as e:
                 print(e)
-                res = False
         res = all(del_res)
         if not res:
-            print(f"WARNING: part of records delete failed, all: {all_count}, success:{ all_count - len(failed_records)}, failed: {len(failed_records)}")
+            print(
+                f"WARNING: part of records delete failed, all: {all_count}, success:{all_count - len(failed_records)}, failed: {len(failed_records)}")
         return res
 
     def _clone(self):
@@ -70,7 +74,8 @@ class QuerySet:
                 try:
                     update_success_count += self._dst.update_records(chunk)
                     time.sleep(1 / QPS)
-                except Exception:
+                except Exception as e:
+                    print(e)
                     has_failed = True
             if has_failed:
                 failed_count = this_batch_records_len - update_success_count
@@ -121,17 +126,26 @@ class RecordManager:
         self._fetched_by = None
 
     def check_data(self, **kwargs):
-        if not self._dst._has_fetched_data or (
-            self._fetched_by == "all" and kwargs != self._fetched_with
+        if not self._dst.has_fetched_data or (
+                self._fetched_by == "all" and kwargs != self._fetched_with
         ):
             _fieldKey = kwargs.get("fieldKey")
             if _fieldKey and _fieldKey != self._dst.field_key:
                 # TODO: logger warning
                 print(
-                    f'It seems that you set field_key when you init datasheet, all(filedKey="{_fieldKey}") wont work'
+                    f'It seems that you set field_key when init datasheet, all(filedKey="{_fieldKey}") wont work'
                 )
             kwargs.update(fieldKey=self._dst.field_key)
-            records = self._dst.vika.fetch_datasheet(self._dst.id, **kwargs)
+            if 'pageSize' in kwargs or 'pageNum' in kwargs:
+                resp = self._dst.vika.fetch_datasheet(self._dst.id, **kwargs)
+                if resp.success:
+                    records = resp.data.records
+                else:
+                    print(resp.data)
+                    print(f"[{self._dst.id}] fetch data fail\n {resp.message}")
+                    records = []
+            else:
+                records = self._dst.vika.fetch_datasheet_all(self._dst.id, **kwargs)
             self._dst.set_records(records)
             self._dst.has_fetched_data = True
             self._fetched_with = kwargs
@@ -145,7 +159,7 @@ class RecordManager:
                 time.sleep(1 / QPS)
         self._dst.append_records(records)
         if len(data) != len(records):
-            print(f"Warning: {len(data)-len(records)} records create fail")
+            print(f"Warning: {len(data) - len(records)} records create fail")
         return [Record(self._dst, record) for record in records]
 
     def create(self, data):
