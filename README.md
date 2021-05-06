@@ -207,7 +207,7 @@ _传入分页相关参数（pageName、pageSize）时，SDK 不会再自动加�
 | viewId          | str            | 视图ID。默认为维格表中第一个视图。请求会返回视图中经过视图中筛选/排序后的结果 |                                       |
 | pageNum         | int            | 默认 1                                                                        |                                       |
 | pageSize        | int            | 默认 100 ， 最大 1000                                                         |                                       |
-| sort            | dict[]         | 指定排序的字段，会覆盖视图排序条件                                            | `[{ field: 'field1': order: 'asc' }]` |
+| sort            | dict[]         | 指定排序的字段，会覆盖视图排序条件                                            | `[{ field: 'field1', order: 'asc' }]` |
 | recordIds       | str[]          | 返回指定 recordId 的记录集                                                    | `['recordId1', 'recordId2']`          |
 | fields          | str[]          | 只有指定字段会返回                                                            |                                       |
 | filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                       |

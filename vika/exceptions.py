@@ -34,3 +34,10 @@ class ErrorFieldKey(Exception):
     """
 
     pass
+
+
+class ErrorSortParams(Exception):
+    """
+    错误的排序规则
+    """
+    pass

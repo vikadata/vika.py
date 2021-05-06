@@ -1,9 +1,11 @@
 from urllib.parse import urljoin, urlparse
 
 import requests
+import json
 
 from .const import API_BASE, API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
 from .datasheet import Datasheet
+from .exceptions import ErrorSortParams
 from .vika_type import RawGETResponse
 
 
@@ -41,11 +43,23 @@ class Vika:
             raise Exception("Bad URL")
         return Datasheet(self, dst_id, records=[], **kwargs)
 
+    @staticmethod
+    def check_sort_params(sort):
+        if not isinstance(sort, list):
+            return False
+        return all([('field' in i and 'order' in i) for i in sort])
+
     def fetch_datasheet(self, dst_id, **kwargs):
         params = {}
         for key in kwargs:
             if key in API_GET_DATASHEET_QS_SET:
-                params.update({key: kwargs.get(key)})
+                params_value = kwargs.get(key)
+                if key == 'sort':
+                    if self.check_sort_params(params_value):
+                        params_value = [json.dumps(i) for i in params_value]
+                    else:
+                        raise ErrorSortParams('sort 参数格式有误')
+                params.update({key: params_value})
         resp = self.request.get(
             urljoin(self.api_base, f"/fusion/v1/datasheets/{dst_id}/records"),
             params=params,
