@@ -158,9 +158,10 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 
 查询出来的 QuerySet 是一个 Record 的集合。单个 Record 可以通过 `record.字段名` 的方式获取值。
  
-| 方法 | 参数 | 返回类型 | 说明                     | 例子            |
+| 方法/属性 | 参数 | 返回类型 | 说明                     | 例子            |
 | ---- | ---- | -------- | ------------------------ | --------------- |
 | json | /    | dict     | 返回当前记录的所有字段值 | `record.json()` |
+| _id | /    | str     | _id 是保留属性，返回当前记录的 recordId | `record._id` |
 
 ### 字段值
 
