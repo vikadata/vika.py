@@ -4,6 +4,7 @@ import mimetypes
 import requests
 
 from .exceptions import RecordDoesNotExist
+from .field_manager import FieldManager
 from .record import Record
 from .record_manager import RecordManager
 from .vika_type import (
@@ -104,6 +105,10 @@ class Datasheet:
     @property
     def raw_records(self):
         return self._records
+
+    @property
+    def fields(self):
+        return FieldManager(self)
 
     @property
     def records(self):

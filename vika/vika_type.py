@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class RawResponse(BaseModel):
     """
-    REST API 返回的统一相应体格式
+    REST API 返回的统一响应体格式
     """
 
     code: int
@@ -76,3 +76,7 @@ class RawUploadFileResponse(RawResponse):
     """
 
     data: Dict[str, Any]
+
+
+class RawMetaFieldResponse(RawResponse):
+    data: Any
