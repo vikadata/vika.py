@@ -2,6 +2,7 @@
 
 [Vika](https://vika.cn) Python SDK 是对维格表 Fusion API 的官方封装，提供类似 Django ORM 风格的 API。
 
+用户交流QQ群：683795224
 
 ## 快速开始
 
