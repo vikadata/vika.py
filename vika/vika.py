@@ -1,3 +1,4 @@
+from typing import List
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -6,7 +7,7 @@ import json
 from .const import API_BASE, API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
 from .datasheet import Datasheet
 from .exceptions import ErrorSortParams
-from .vika_type import RawGETResponse
+from .types import GETRecordResponse, RawRecord
 
 
 class Vika:
@@ -50,6 +51,9 @@ class Vika:
         return all([('field' in i and 'order' in i) for i in sort])
 
     def fetch_datasheet(self, dst_id, **kwargs):
+        """
+        分页获取数表数据
+        """
         params = {}
         for key in kwargs:
             if key in API_GET_DATASHEET_QS_SET:
@@ -64,10 +68,10 @@ class Vika:
             urljoin(self.api_base, f"/fusion/v1/datasheets/{dst_id}/records"),
             params=params,
         ).json()
-        resp = RawGETResponse(**resp)
+        resp = GETRecordResponse(**resp)
         return resp
 
-    def fetch_datasheet_all(self, dst_id, **kwargs):
+    def fetch_datasheet_all(self, dst_id, **kwargs) -> List[RawRecord]:
         """
         不主动传入 pageSize 和 pageNum 时候，主动加载全部记录。
         """

@@ -41,11 +41,11 @@ class ComputeValueTypeEnum(str, Enum):
 
 
 # field property
-class SingleTextFieldProperty:
+class SingleTextFieldProperty(BaseModel):
     defaultValue: Optional[str]
 
 
-class NumberFieldProperty:
+class NumberFieldProperty(BaseModel):
     defaultValue: Optional[str]
     precision: int
 
@@ -58,18 +58,18 @@ class PercentFieldProperty(NumberFieldProperty):
     pass
 
 
-class SelectOptionColor:
+class SelectOptionColor(BaseModel):
     name: str
     value: str
 
 
-class SelectOption:
+class SelectOption(BaseModel):
     id: str
     name: str
     color: SelectOptionColor
 
 
-class SingleSelectFieldProperty:
+class SingleSelectFieldProperty(BaseModel):
     options: List[SelectOption]
 
 
@@ -77,24 +77,24 @@ class MultiSelectFieldProperty(SingleSelectFieldProperty):
     pass
 
 
-class MemberOption:
+class MemberOption(BaseModel):
     id: str
     name: str
     type: MemberEnum
     avatar: Optional[str]
 
 
-class MemberFieldProperty:
+class MemberFieldProperty(BaseModel):
     options: List[MemberOption]
 
 
-class UserOption:
+class UserOption(BaseModel):
     id: str
     name: str
     avatar: str
 
 
-class CreateByFieldProperty:
+class CreateByFieldProperty(BaseModel):
     options: List[UserOption]
 
 
@@ -102,16 +102,16 @@ class LastModifiedByFieldProperty(CreateByFieldProperty):
     pass
 
 
-class CheckboxFieldProperty:
+class CheckboxFieldProperty(BaseModel):
     icon: str
 
 
-class RatingFieldProperty:
+class RatingFieldProperty(BaseModel):
     icon: str
     max: int
 
 
-class DateTimeFieldProperty:
+class DateTimeFieldProperty(BaseModel):
     format: str
     autoFill: bool
     includeTime: bool
@@ -125,17 +125,17 @@ class LastModifiedTimeFieldProperty(DateTimeFieldProperty):
     pass
 
 
-class LinkFieldProperty:
+class LinkFieldProperty(BaseModel):
     foreignDatasheetId: str
     brotherFieldId: str
 
 
-class FieldPropertyWithDstId:
+class FieldPropertyWithDstId(BaseModel):
     datasheetId: str
     field: "MetaField"
 
 
-class LookupFieldProperty:
+class LookupFieldProperty(BaseModel):
     relatedLinkFieldId: str
     targetField: FieldPropertyWithDstId
     hasError: Optional[bool]
@@ -144,7 +144,7 @@ class LookupFieldProperty:
     valueType: ComputeValueTypeEnum
 
 
-class FormulaFieldProperty:
+class FormulaFieldProperty(BaseModel):
     expression: Optional[str]  # 一定会有公式表达式吗
     valueType: ComputeValueTypeEnum
     hasError: Optional[bool]

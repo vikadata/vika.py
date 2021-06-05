@@ -1,6 +1,7 @@
 class DatasheetDoesNotExist(Exception):
-    """"""
-
+    """
+    数表不存在
+    """
     pass
 
 
@@ -8,7 +9,6 @@ class RecordDoesNotExist(Exception):
     """
     查询的即记录不存在
     """
-
     pass
 
 

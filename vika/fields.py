@@ -1,15 +1,25 @@
-# 暂时没用
+"""
+暂时没用
+"""
+
+
 class BaseField:
-    pass
+    def set_value(self, value):
+        """
+        """
+        pass
 
 
 class TextField(BaseField):
-    _type = "text"
+    _type = "SingleText"
 
 
 class AttachmentField(BaseField):
-    _type = "attachment"
+    _type = "Attachment"
+
+    def set_value(self, value):
+        pass
 
 
 class LinkField(BaseField):
-    _type = "link"
+    _type = "Link"

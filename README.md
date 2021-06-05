@@ -2,12 +2,11 @@
 
 [Vika](https://vika.cn) Python SDK 是对维格表 Fusion API 的官方封装，提供类似 Django ORM 风格的 API。
 
-
 ## 快速开始
 
 ### 环境要求
 
-python3.6 + 
+python3.6 +
 
 ### 安装
 
@@ -25,6 +24,7 @@ pip install --upgrade vika
 
 ```python
 from vika import Vika
+
 vika = Vika("your api_token")
 
 dst = vika.datasheet("dstt3KGCKtp11fgK0t")
@@ -32,14 +32,14 @@ dst = vika.datasheet("dstt3KGCKtp11fgK0t")
 # dst = vika.datasheet("https://vika.cn/space/spcxcvEBLXf7X/workbench/dstt3KGCKtp11fgK0t/viwmKtRiYcPfk")
 
 # 创建记录
-record = dst.records.create({"title":"new record from Python SDK"})
+record = dst.records.create({"title": "new record from Python SDK"})
 print(record.title)
-#print(record.标题)
+# print(record.标题)
 
 # 批量创建记录
 records = dst.records.bulk_create([
-  {"title":"new record from Python SDK"},
-  {"title":"new record from Python SDK2"}
+    {"title": "new record from Python SDK"},
+    {"title": "new record from Python SDK2"}
 ])
 
 # 更新单个字段值
@@ -49,14 +49,13 @@ print(record.title)
 
 # 更新多个字段值
 record.update({
-  "title":"new title",
-  "other_field": "new value",
+    "title": "new title",
+    "other_field": "new value",
 })
 
 # 附件字段更新
-my_file = dst.upload_file(<本地或网络文件路径>)
+my_file = dst.upload_file( < 本地或网络文件路径 >)
 record.files = [my_file]
-
 
 # 过滤记录
 songs = dst_songs.records.filter(artist="faye wong")
@@ -76,6 +75,37 @@ record.json()
 # 删除符合过滤条件的一批记录
 dst.records.filter(title=None).delete()
 
+# 获取字段
+field = dst.fields[0]
+field = dst.fields.get(name="标题")
+field = dst.fields.get(id="fidxxxxx")
+print(field.name, field.desc, field.type)
+
+# 获取视图
+view = dst.views[0]
+print(view.type, view.name)
+
+```
+
+### 最佳实践
+
+#### 减少请求数量
+
+API 每次请求最多获取 1000 条数据，如果您的数据量过大，接近 50000 的限制。尽量避免使用 all 方法，获取全部数据。在不加任何参数的情况下，调用 all 会串行请求 50 次 API。 不仅非常慢，而且消耗 API
+请求额度。
+
+#### 搭配视图使用
+
+指定视图 id 返回和视图中相同的数据。
+
+```python
+dst.records.all(viewId="viwxxxxxx")
+```
+
+#### 使用公式筛选数据
+
+```python
+dst.records.all(filterByformula='{title}="hello"')
 ```
 
 ### 字段映射
@@ -88,7 +118,6 @@ dst.records.filter(title=None).delete()
 | -------------- | ------- |
 | 登陆后页面崩溃 | 待修复  |
 |                |         |
-
 
 ```python 
 dst = vika.datasheet("dstt3KGCKtp11fgK0t",field_key_map={
@@ -105,13 +134,14 @@ record.state="已修复"
 ```
 
 保留使用 field id 作 key 的用法
+
 ```python
 bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id")
 row = bug.records.get(flddpSLHEzDPQ="登陆后页面崩溃")
 row.flddpSLHEzDPQ = "登陆后页面崩溃"
 row.update({
-  "flddpSLHEzDPQ": "登陆后页面崩溃",
-  "fldwvNDf9teD2": "已修复"
+    "flddpSLHEzDPQ": "登陆后页面崩溃",
+    "fldwvNDf9teD2": "已修复"
 })
 
 ```
@@ -120,14 +150,15 @@ row.update({
 
 ```python
 bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
-  "title":"flddpSLHEzDPQ",
-  "state":"fldwvNDf9teD2",
+    "title": "flddpSLHEzDPQ",
+    "state": "fldwvNDf9teD2",
 })
 ```
 
-## API 
+## API
 
 ### records 方法
+
 `dst.records` 管理表格中的记录。
 
 | 方法        | 参数   | 返回类型 | 说明                            | 例子                                                                         |
@@ -157,43 +188,41 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 ### Record
 
 查询出来的 QuerySet 是一个 Record 的集合。单个 Record 可以通过 `record.字段名` 的方式获取值。
- 
-| 方法/属性 | 参数 | 返回类型 | 说明                     | 例子            |
-| ---- | ---- | -------- | ------------------------ | --------------- |
-| json | /    | dict     | 返回当前记录的所有字段值 | `record.json()` |
-| _id | /    | str     | _id 是保留属性，返回当前记录的 recordId | `record._id` |
+
+| 方法/属性 | 参数 | 返回类型 | 说明                                    | 例子            |
+| --------- | ---- | -------- | --------------------------------------- | --------------- |
+| json      | /    | dict     | 返回当前记录的所有字段值                | `record.json()` |
+| _id       | /    | str      | _id 是保留属性，返回当前记录的 recordId | `record._id`    |
 
 ### 字段值
 
-维格列字段值与 Python 数据结构的映射关系。
-维格表中单元格为空的数据始终是 null，API 返回的记录中，不会包含值为 null 的字段。
+维格列字段值与 Python 数据结构的映射关系。 维格表中单元格为空的数据始终是 null，API 返回的记录中，不会包含值为 null 的字段。
 
-| 维格列类型 | 数据类型             |
-| ---------- | -------------------- |
-| 单行文本   | str                  |
-| 多行文本   | str                  |
-| 单选       | str                  |
-| 多选       | str[]                |
-| 网址       | str                  |
-| 电话       | str                  |
-| 邮箱       | str                  |
-| 数字       | number               |
-| 货币       | number               |
-| 百分比     | number               |
-| 自增数字   | number               |
-| 日期       | number               |
-| 创建时间   | number               |
-| 修改时间   | number               |
+| 维格列类型 | 数据类型            |
+| ---------- | ------------------- |
+| 单行文本   | str                 |
+| 多行文本   | str                 |
+| 单选       | str                 |
+| 多选       | str[]               |
+| 网址       | str                 |
+| 电话       | str                 |
+| 邮箱       | str                 |
+| 数字       | number              |
+| 货币       | number              |
+| 百分比     | number              |
+| 自增数字   | number              |
+| 日期       | number              |
+| 创建时间   | number              |
+| 修改时间   | number              |
 | 附件       | attachment object[] |
-| 成员       | unit object[]        |
-| 勾选       | bool                 |
-| 评分       | int                  |
-| 创建人     | unit object          |
-| 修改人     | unit object          |
-| 神奇关联   | str[]                |
-| 神奇引用   | any[]                |
-| 智能公式   | str / bool           |
-
+| 成员       | unit object[]       |
+| 勾选       | bool                |
+| 评分       | int                 |
+| 创建人     | unit object         |
+| 修改人     | unit object         |
+| 神奇关联   | str[]               |
+| 神奇引用   | any[]               |
+| 智能公式   | str / bool          |
 
 ### all 参数
 
@@ -201,7 +230,7 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 
 当调用 all 时，显式地传入参数，则利用服务端计算返回部分数据集。
 
-_传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载全部记录_ 
+_传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载全部记录_
 
 | 参数            | 类型           | 说明                                                                          | 例子                                  |
 | --------------- | -------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
@@ -214,7 +243,6 @@ _传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载
 | filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                       |
 | maxRecords      | int            | 限制返回记录数，默认 5000                                                     |                                       |
 | fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                       |
-
 
 参见：[公式使用方式](https://vika.cn/help/tutorial-getting-started-with-formulas/)
 
@@ -255,9 +283,11 @@ python -m unittest test
 目前不可以，后续 REST API 升级会暴露表格 meta 信息
 
 ### 可以自动创建单多选选项吗？
+
 ```
 record.tags = ["目前 tags 字段中不存在的选项"]
 ```
+
 目前不可以，你只能赋值已经存在的选项。后续会支持 :D
 
 ### 单个表格最大支持多少条记录？

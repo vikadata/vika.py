@@ -1,131 +1,33 @@
 import time
 
 from .const import MAX_COUNT_CREATE_RECORDS_ONCE, QPS
+from .query_set import QuerySet
 from .record import Record
-from .utils import chunks
-from .exceptions import RecordDoesNotExist
-
-
-class QuerySet:
-    def __init__(self, dst, records):
-        self._dst = dst
-        self._records = records
-
-    def __len__(self):
-        return len(self._records)
-
-    def __iter__(self):
-        for record in iter(self._records):
-            record = Record(self._dst, record)
-            yield record
-
-    def __str__(self):
-        return f"(QuerySet: {self.count()} records)"
-
-    __repr__ = __str__
-
-    def __getitem__(self, index):
-        return Record(self._dst, self._records[index])
-
-    def last(self):
-        return Record(self._dst, self._records[-1])
-
-    def first(self):
-        return Record(self._dst, self._records[0])
-
-    def delete(self) -> bool:
-        del_res = []
-        all_count = len(self._records)
-        failed_records = []
-        for chunk in chunks(self._records, MAX_COUNT_CREATE_RECORDS_ONCE):
-            try:
-                is_del_success = self._dst.delete_records([rec.id for rec in chunk])
-                if is_del_success:
-                    self._dst.remove_records(chunk)
-                    del_res.append(is_del_success)
-                else:
-                    failed_records += chunk
-                    del_res.append(is_del_success)
-                time.sleep(1 / QPS)
-            except Exception as e:
-                print(e)
-        res = all(del_res)
-        if not res:
-            print(
-                f"WARNING: part of records delete failed, all: {all_count}, success:{all_count - len(failed_records)}, failed: {len(failed_records)}")
-        return res
-
-    def _clone(self):
-        return QuerySet(self._dst, self._records)
-
-    def update(self, **kwargs) -> int:
-        """
-        dst.records.filter(title=None).update(status="Pending")
-        """
-        patch_update_records_data = []
-        for record in iter(self._records):
-            data = {"recordId": record.id, "fields": kwargs}
-            patch_update_records_data.append(data)
-        this_batch_records_len = len(patch_update_records_data)
-        has_failed = False
-        if patch_update_records_data:
-            update_success_count = 0
-            for chunk in chunks(patch_update_records_data, MAX_COUNT_CREATE_RECORDS_ONCE):
-                try:
-                    update_success_count += self._dst.update_records(chunk)
-                    time.sleep(1 / QPS)
-                except Exception as e:
-                    print(e)
-                    has_failed = True
-            if has_failed:
-                failed_count = this_batch_records_len - update_success_count
-                print(f"{failed_count} records update failed")
-            return update_success_count
-        return 0
-
-    def count(self):
-        return len(self)
-
-    def get(self, **kwargs):
-        if kwargs.keys():
-            return self.filter(**kwargs).get()
-        if self._records:
-            return Record(self._dst, self._records[0])
-
-        raise RecordDoesNotExist()
-
-    def all(self):
-        return QuerySet(self._dst, self._dst._records)
-
-    def filter(self, **kwargs):
-        """
-        songs = dst_songs.filter(artist="faye wong")
-        for song in songs:
-            print(song.title)
-        """
-        kwargs = {self._dst.trans_key(k): v for k, v in kwargs.items()}
-
-        def filter_record(record) -> bool:
-            return all(
-                [
-                    record.id == v
-                    if k in ["recordId", "_id"]
-                    else record.data.get(k) == v
-                    for k, v in kwargs.items()
-                ]
-            )
-
-        found_records = list(filter(filter_record, self._records))
-        return QuerySet(self._dst, found_records)
+from .utils import chunks, query_parse
 
 
 class RecordManager:
-    def __init__(self, dst):
+    def __init__(self, dst: 'Datasheet'):
         self._dst = dst
         self._fetched_with = None
         self._fetched_by = None
 
     def check_data(self, **kwargs):
+        """
+        records.<不同查询方法> 链式调用的首次调用会查询数据。
+        根据查询方法的不同，使用不同的应对策略，减小请求数量
+        """
+        # 客户端没有获取到表格完整数据前，独立查询的数据都会覆盖客户端数据集合。
+        if self._fetched_by in ["get", "filter"] and not self._dst.has_fetched_all_data:
+            # 将查询条件转化为 filterByFormula
+            query_formula = query_parse(self._dst.field_key_map, **kwargs)
+            kwargs = {"filterByFormula": query_formula}
+            records = self._dst.vika.fetch_datasheet_all(self._dst.id, **kwargs)
+            self._dst.client_set_records(records)
+            self._dst.has_fetched_data = True
+            self._fetched_with = kwargs
+            return records
+
         if not self._dst.has_fetched_data or (
                 self._fetched_by == "all" and kwargs != self._fetched_with
         ):
@@ -146,29 +48,34 @@ class RecordManager:
                     records = []
             else:
                 records = self._dst.vika.fetch_datasheet_all(self._dst.id, **kwargs)
-            self._dst.set_records(records)
+            self._dst.client_set_records(records)
             self._dst.has_fetched_data = True
             self._fetched_with = kwargs
 
     def bulk_create(self, data):
+        """
+        批量创建记录，每个请求只能创建 10 条记录
+        """
         records = []
         for chunk in chunks(data, MAX_COUNT_CREATE_RECORDS_ONCE):
             resp = self._dst.create_records(chunk)
             if resp.success:
                 records += resp.data.records
                 time.sleep(1 / QPS)
-        self._dst.append_records(records)
+        self._dst.client_append_records(records)
         if len(data) != len(records):
             print(f"Warning: {len(data) - len(records)} records create fail")
         return [Record(self._dst, record) for record in records]
 
     def create(self, data):
+        """
+        创建一条记录
+        """
         resp = self._dst.create_records(data)
         if resp.success:
             records = resp.data.records
-            self._dst.append_records(records)
+            self._dst.client_append_records(records)
             return Record(self._dst, records[0])
-
         return None
 
     def count(self):
@@ -205,8 +112,8 @@ class RecordManager:
         print(book.title)
         """
         self._fetched_by = "get"
-        self.check_data()
-        return QuerySet(self._dst, self._dst.raw_records).get(**kwargs)
+        raw_records = self.check_data(**kwargs)
+        return QuerySet(self._dst, raw_records).get(**kwargs)
 
     def filter(self, **kwargs):
         """
@@ -214,6 +121,7 @@ class RecordManager:
         for song in songs:
             print(song.title)
         """
+        # 直接通过 filter 调用时候，将 filter 查询参数转化为
         self._fetched_by = "filter"
-        self.check_data()
-        return QuerySet(self._dst, self._dst.raw_records).filter(**kwargs)
+        raw_records = self.check_data(**kwargs)
+        return QuerySet(self._dst, raw_records).filter(**kwargs)

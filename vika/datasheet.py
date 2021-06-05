@@ -1,36 +1,70 @@
 import io
-from urllib.parse import urljoin
 import mimetypes
+from typing import List
+from urllib.parse import urljoin
+
 import requests
 
 from .exceptions import RecordDoesNotExist
 from .field_manager import FieldManager
 from .record import Record
 from .record_manager import RecordManager
-from .vika_type import (
-    RawPatchResponse,
-    RawPostResponse,
-    RawDeleteResponse,
-    RawUploadFileResponse,
-    RawRecords,
+from .types.response import (
+    GETMetaFieldResponse,
+    PatchRecordResponse,
+    PostRecordResponse,
+    DeleteRecordResponse,
+    UploadFileResponse,
     RawRecord,
+    Records,
+    MetaField,
+    GETMetaViewResponse,
 )
+from .utils import FieldKeyMap
+from .view_manager import ViewManager
 
 
 class Datasheet:
-    def __init__(self, vika, dst_id, records: RawRecords, **kwargs):
+    def __init__(self, vika: 'Vika', dst_id: str, records: Records, **kwargs):
         self.vika = vika
         self.id = dst_id
-        self._init_records(records)
+        self.client_set_records(records)
         self.has_fetched_data = False
+        self.has_fetched_all_data = False
         field_key = kwargs.get("field_key", "name")
         if field_key not in ["name", "id"]:
             raise Exception("Error field_key, plz use「name」 or 「id」")
         self.field_key = field_key
         field_key_map = kwargs.get("field_key_map", None)
-        self.field_key_map = field_key_map
+        self.field_key_map: FieldKeyMap = field_key_map
+        # 本地存储数据
+        self.meta_fields = []
+        self.meta_field_id_map = {}
+        self.meta_field_name_map = {}
+        self._record_ids = []
+        self._records_map = {}
 
-    def _init_records(self, records: RawRecords):
+    # client_x 管理客户端 datasheet 数据
+    def client_append_records(self, records):
+        for record in records:
+            self._record_ids.append(record.id)
+            self._records_map[record.id] = record.data
+
+    def client_remove_records(self, records):
+        for record in records:
+            if record.id in self._record_ids:
+                self._record_ids.remove(record.id)
+                del self._records_map[record.id]
+
+    def client_set_meta_fields(self, fields: List[MetaField]):
+        self.meta_fields = fields
+        self.meta_field_id_map = {}
+        self.meta_field_name_map = {}
+        for field in fields:
+            self.meta_field_id_map[field.id] = field
+            self.meta_field_id_map[field.name] = field
+
+    def client_set_records(self, records):
         _record_ids = []
         _records_map = {}
         for record in records:
@@ -47,11 +81,34 @@ class Datasheet:
         else:
             return RecordDoesNotExist()
 
-    @property
-    def _records(self):
-        return self._make_records()
+    def client_update_record_data_via_id(self, record_id, data) -> bool:
+        try:
+            record_data = self._records_map.get(record_id)
+            record_data.update(data)
+            return True
+        except Exception:
+            return False
 
-    def _make_records(self):
+    def client_update_records(self, records: Records) -> int:
+        success_count = 0
+        for record in records:
+            r = self.client_update_record_data_via_id(record.id, record.data)
+            if r:
+                success_count += 1
+        return success_count
+
+    def refresh(self):
+        """
+        TODO refetch datasheet
+        """
+        pass
+
+    @property
+    def record_api_endpoint(self):
+        return urljoin(self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/records")
+
+    @property
+    def raw_records(self):
         return [
             RawRecord(
                 **{
@@ -62,72 +119,17 @@ class Datasheet:
             for record_id in self._record_ids
         ]
 
-    def set_records(self, records):
-        self._init_records(records)
-
-    def _update_record_data_via_id(self, record_id, data) -> bool:
-        try:
-            record_data = self._records_map.get(record_id)
-            record_data.update(data)
-            return True
-        except Exception:
-            return False
-
-    def _update_records(self, records: RawRecords) -> int:
-        success_count = 0
-        for record in records:
-            r = self._update_record_data_via_id(record.id, record.data)
-            if r:
-                success_count += 1
-        return success_count
-
-    def append_records(self, records):
-        for record in records:
-            self._record_ids.append(record.id)
-            self._records_map[record.id] = record.data
-
-    def remove_records(self, records):
-        for record in records:
-            if record.id in self._record_ids:
-                self._record_ids.remove(record.id)
-                del self._records_map[record.id]
-
-    def refresh(self):
-        """
-        TODO refetch datasheet
-        """
-        pass
-
-    @property
-    def _api_endpoint(self):
-        return urljoin(self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/records")
-
-    @property
-    def raw_records(self):
-        return self._records
-
     @property
     def fields(self):
         return FieldManager(self)
 
     @property
+    def views(self):
+        return ViewManager(self)
+
+    @property
     def records(self):
         return RecordManager(self)
-
-    def update_records(self, data) -> int:
-        """
-        更新记录
-        """
-        if type(data) is list:
-            data = {"records": data, "fieldKey": self.field_key}
-        else:
-            data = {"records": [data], "fieldKey": self.field_key}
-        r = self.vika.request.patch(self._api_endpoint, json=data).json()
-        if r["success"]:
-            r = RawPatchResponse(**r)
-            return self._update_records(r.data.records)
-        else:
-            raise Exception(r["message"])
 
     def field_check(self, field):
         """
@@ -136,6 +138,9 @@ class Datasheet:
         pass
 
     def trans_key(self, key):
+        """
+        存在字段映射时，将映射的 key 转为实际的 key
+        """
         field_key_map = self.field_key_map
         if key in ["_id", "recordId"]:
             return key
@@ -154,7 +159,36 @@ class Datasheet:
             return _data
         return data
 
-    def create_records(self, data) -> RawPostResponse:
+    # 下面是数表管理的请求
+    # 字段相关
+    def get_fields(self):
+        """
+        获取 field meta
+        """
+        api_endpoint = urljoin(
+            self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/fields"
+        )
+        r = self.vika.request.get(api_endpoint).json()
+        r = GETMetaFieldResponse(**r)
+        if r.success:
+            return r.data.fields
+        raise Exception(r.message)
+
+    def get_views(self):
+        """
+        获取 view meta
+        """
+        api_endpoint = urljoin(
+            self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/views"
+        )
+        r = self.vika.request.get(api_endpoint).json()
+        r = GETMetaViewResponse(**r)
+        if r.success:
+            return r.data.views
+        raise Exception(r.message)
+
+    # 记录相关请求
+    def create_records(self, data) -> PostRecordResponse:
         """
         添加记录
         """
@@ -168,9 +202,9 @@ class Datasheet:
                 "records": [{"fields": self.trans_data(data)}],
                 "fieldKey": self.field_key,
             }
-        r = self.vika.request.post(self._api_endpoint, json=data).json()
+        r = self.vika.request.post(self.record_api_endpoint, json=data).json()
         if r["success"]:
-            r = RawPostResponse(**r)
+            r = PostRecordResponse(**r)
             return r
         else:
             raise Exception(r["message"])
@@ -188,14 +222,30 @@ class Datasheet:
             rec = rec_list
             ids = rec._id if type(rec) is Record else rec
         r = self.vika.request.delete(api_endpoint, params={"recordIds": ids}).json()
-        r = RawDeleteResponse(**r)
+        r = DeleteRecordResponse(**r)
         return r.success
 
+    def update_records(self, data) -> int:
+        """
+        更新记录
+        """
+        if type(data) is list:
+            data = {"records": data, "fieldKey": self.field_key}
+        else:
+            data = {"records": [data], "fieldKey": self.field_key}
+        r = self.vika.request.patch(self.record_api_endpoint, json=data).json()
+        if r["success"]:
+            r = PatchRecordResponse(**r)
+            return self.client_update_records(r.data.records)
+        else:
+            raise Exception(r["message"])
+
+    # 附件
     def upload_file(self, file_url):
         """
         dst.upload_file("")
         """
-        api_endpoint = api_endpoint = urljoin(
+        api_endpoint = urljoin(
             self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/attachments"
         )
 
@@ -213,7 +263,7 @@ class Datasheet:
                     files={"files": _file},
                     stream=False,
                 ).json()
-                r = RawUploadFileResponse(**r)
+                r = UploadFileResponse(**r)
                 if r.success:
                     return r.data
         else:
@@ -228,6 +278,6 @@ class Datasheet:
                         )
                     },
                 ).json()
-                r = RawUploadFileResponse(**r)
+                r = UploadFileResponse(**r)
                 if r.success:
                     return r.data
