@@ -214,6 +214,7 @@ _传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载
 | fields          | str[]          | 只有指定字段会返回                                                            |                                       |
 | filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                       |
 | maxRecords      | int            | 限制返回记录数，默认 5000                                                     |                                       |
+| cellFormat      | 'json' or 'string' | 默认为 'json'，指定为 'string' 时所有值都将被自动转换为 string 格式。       |                               |
 | fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                       |
 
 
