@@ -25,9 +25,8 @@ class TestUpdate(unittest.TestCase):
             "title": '无人生还3',
             "comment": '真好看'
         })
-        self.assertEqual(r, 1)
-        self.assertEqual(record.title, "无人生还3")
-        self.assertEqual(record.comment, "真好看")
+        self.assertEqual(r.title, "无人生还3")
+        self.assertEqual(r.comment, "真好看")
         time.sleep(1)
 
         # 更新多条记录

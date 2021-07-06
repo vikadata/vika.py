@@ -14,14 +14,15 @@ class TestDelete(unittest.TestCase):
 
     def test_record_delete(self):
         record = self.dst.records.get(title="无人生还")
-        time.sleep(2)
+        time.sleep(1 / 5)
         r = record.delete()
         self.assertTrue(r)
 
-        time.sleep(2)
+        time.sleep(1 / 5)
         record_id = "recnotexist"
-        r = self.dst.delete_records([record_id])
-        self.assertFalse(r)
+        with self.assertRaises(Exception) as e:
+            self.dst.delete_records([record_id])
+        self.assertIsNotNone(e)
 
     def tearDown(self):
         time.sleep(2)

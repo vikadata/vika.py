@@ -1,23 +1,21 @@
-from typing import List
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
-import requests
-import json
-
-from .const import API_BASE, API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
+from .const import API_BASE
 from .datasheet import Datasheet
-from .exceptions import ErrorSortParams
-from .types import GETRecordResponse, RawRecord
+import requests
 
 
 class Vika:
     def __init__(self, token, **kwargs):
-        self.request = requests.Session()
-        self.auth(token)
+        self.request = requests.session()
+        self._auth(token)
         self._api_base = API_BASE
 
     @property
     def api_base(self):
+        """
+        当前 API 基础地址，区分环境
+        """
         return self._api_base
 
     def set_api_base(self, api_base):
@@ -27,10 +25,13 @@ class Vika:
         # TODO  配置 request 请求（timeout）
         pass
 
-    def auth(self, token):
+    def _auth(self, token):
         self.request.headers.update({"Authorization": f"Bearer {token}"})
 
     def datasheet(self, dst_id_or_url, **kwargs):
+        """
+        实例化数表
+        """
         if dst_id_or_url.startswith("dst"):
             dst_id = dst_id_or_url
         elif dst_id_or_url.startswith("http"):
@@ -49,44 +50,3 @@ class Vika:
         if not isinstance(sort, list):
             return False
         return all([('field' in i and 'order' in i) for i in sort])
-
-    def fetch_datasheet(self, dst_id, **kwargs):
-        """
-        分页获取数表数据
-        """
-        params = {}
-        for key in kwargs:
-            if key in API_GET_DATASHEET_QS_SET:
-                params_value = kwargs.get(key)
-                if key == 'sort':
-                    if self.check_sort_params(params_value):
-                        params_value = [json.dumps(i) for i in params_value]
-                    else:
-                        raise ErrorSortParams('sort 参数格式有误')
-                params.update({key: params_value})
-        resp = self.request.get(
-            urljoin(self.api_base, f"/fusion/v1/datasheets/{dst_id}/records"),
-            params=params,
-        ).json()
-        resp = GETRecordResponse(**resp)
-        return resp
-
-    def fetch_datasheet_all(self, dst_id, **kwargs) -> List[RawRecord]:
-        """
-        不主动传入 pageSize 和 pageNum 时候，主动加载全部记录。
-        """
-        page_size = kwargs.get("pageSize", DEFAULT_PAGE_SIZE)
-        page_num = kwargs.get("pageNum", 1)
-        page_params = {"pageSize": page_size, "pageNum": page_num}
-        kwargs.update(page_params)
-        records = []
-        resp = self.fetch_datasheet(dst_id, **kwargs)
-        if resp.success:
-            records += resp.data.records
-            current_total = page_size * page_num
-            if current_total < resp.data.total:
-                kwargs.update({"pageNum": page_num + 1})
-                records += self.fetch_datasheet_all(dst_id, **kwargs)
-        else:
-            print(f"[{dst_id}] get page:{page_num} fail\n {resp.message}")
-        return records

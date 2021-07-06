@@ -10,6 +10,8 @@ class RawRecord(BaseModel):
 
     id: str
     data: Dict[str, Any]
+    # createdAt: int
+    # updatedAt: int
 
     class Config:
         # https://github.com/samuelcolvin/pydantic/issues/1250

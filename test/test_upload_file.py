@@ -15,7 +15,7 @@ class TestUploadFile(unittest.TestCase):
 
     def test_upload_file(self):
         test_url = "https://img9.doubanio.com/view/subject/s/public/s26849345.jpg"
-        test_file = self.dst.upload_file(test_url)
+        test_file = self.dst.upload_attachment(test_url)
         self.record = self.dst.records.filter(title="无人生还").get()
         self.record.cover = [test_file]
         self.assertIsNotNone(test_file.get("token"))
@@ -29,7 +29,7 @@ class TestUploadFile(unittest.TestCase):
 
     # def test_upload_file_auto(self):
     #     time.sleep(2)
-    #     # 显式地传入附件字段，直接为附件字段赋值网络地址，可以自动上传文件。
+    #     # 显式地传入附件字段，直接为附件字段赋值网络地址，可以自动上传文件。
     #     self.dst = self.vika.datasheet(TEST_TABLE, attachment_fields=["cover"])
     #     self.record = self.dst.records.filter(title="无人生还").get()
     #     test_url = "https://img9.doubanio.com/view/subject/s/public/s26849345.jpg"

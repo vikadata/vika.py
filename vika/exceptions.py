@@ -7,7 +7,7 @@ class DatasheetDoesNotExist(Exception):
 
 class RecordDoesNotExist(Exception):
     """
-    查询的即记录不存在
+    记录不存在
     """
     pass
 
@@ -39,5 +39,12 @@ class ErrorFieldKey(Exception):
 class ErrorSortParams(Exception):
     """
     错误的排序规则
+    """
+    pass
+
+
+class UploadFileError(Exception):
+    """
+    上传附件失败
     """
     pass

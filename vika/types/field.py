@@ -4,15 +4,9 @@ from typing import List, Optional, Union
 from pydantic import BaseModel
 
 
-# enum
-class PermissionLevelEnum(str, Enum):
-    edit = 'edit'
-    read = 'read'
-
-
 class MemberEnum(str, Enum):
-    member = 'member'
-    team = 'team'
+    Member = 'Member'
+    Team = 'Team'
 
 
 class RollUpFunctionEnum(str, Enum):
@@ -34,10 +28,11 @@ class RollUpFunctionEnum(str, Enum):
 
 
 class ComputeValueTypeEnum(str, Enum):
-    string = 'string'
-    boolean = 'boolean'
-    number = 'number'
-    array = 'array'
+    String = 'String'
+    Boolean = 'Boolean'
+    Number = 'Number'
+    Array = 'Array'
+    DateTime = 'DateTime'
 
 
 # field property
@@ -125,7 +120,7 @@ class LastModifiedTimeFieldProperty(DateTimeFieldProperty):
     pass
 
 
-class LinkFieldProperty(BaseModel):
+class MagicLinkFieldProperty(BaseModel):
     foreignDatasheetId: str
     brotherFieldId: str
 
@@ -135,9 +130,9 @@ class FieldPropertyWithDstId(BaseModel):
     field: "MetaField"
 
 
-class LookupFieldProperty(BaseModel):
+class MagicLookupFieldProperty(BaseModel):
     relatedLinkFieldId: str
-    targetField: FieldPropertyWithDstId
+    targetFieldId: str
     hasError: Optional[bool]
     entityField: Optional[FieldPropertyWithDstId]
     rollupFunction: RollUpFunctionEnum
@@ -166,8 +161,8 @@ FieldProperty = Union[
     DateTimeFieldProperty,
     CreatedTimeFieldProperty,
     LastModifiedTimeFieldProperty,
-    LinkFieldProperty,
-    LookupFieldProperty,
+    MagicLinkFieldProperty,
+    MagicLookupFieldProperty,
     FormulaFieldProperty,
 ]
 
@@ -180,4 +175,4 @@ class MetaField(BaseModel):
     isPrimary: Optional[bool]
     desc: Optional[str]
     property: Optional[FieldProperty]
-    permissionLevel: Optional[PermissionLevelEnum]
+    editable: Optional[bool]

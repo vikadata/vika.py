@@ -1,7 +1,7 @@
 import time
 from typing import List
 
-from .const import MAX_COUNT_CREATE_RECORDS_ONCE, QPS
+from .const import MAX_WRITE_RECORDS_PRE_REQ, QPS
 from .exceptions import RecordDoesNotExist
 from .record import Record
 from .types import RawRecord
@@ -9,11 +9,9 @@ from .utils import chunks
 
 
 class QuerySet:
-    def __init__(self, dst, records: List[RawRecord], filter_by_formula=None):
+    def __init__(self, dst, records: List[RawRecord]):
         self._dst = dst
-        self._records = records
-        # qs 组装成的查询语句，使用服务端计算，减少请求。
-        self.filter_by_formula = filter_by_formula
+        self._records = records[:]
 
     def __len__(self):
         return len(self._records)
@@ -31,6 +29,13 @@ class QuerySet:
     def __getitem__(self, index):
         return Record(self._dst, self._records[index])
 
+    def chunks(self):
+        """
+        将当前 QuerySet 拆分成多个最大记录数为 10 的 QuerySet
+        """
+        for chunk in chunks(self._records, MAX_WRITE_RECORDS_PRE_REQ):
+            yield QuerySet(self._dst, chunk)
+
     def last(self):
         return Record(self._dst, self._records[-1])
 
@@ -38,55 +43,31 @@ class QuerySet:
         return Record(self._dst, self._records[0])
 
     def delete(self) -> bool:
-        del_res = []
-        all_count = len(self._records)
-        failed_records = []
-        for chunk in chunks(self._records, MAX_COUNT_CREATE_RECORDS_ONCE):
-            try:
-                is_del_success = self._dst.delete_records([rec.id for rec in chunk])
-                if is_del_success:
-                    self._dst.client_remove_records(chunk)
-                    del_res.append(is_del_success)
-                else:
-                    failed_records += chunk
-                    del_res.append(is_del_success)
-                time.sleep(1 / QPS)
-            except Exception as e:
-                print(e)
-        res = all(del_res)
-        if not res:
-            print(
-                f"WARNING: part of records delete failed, all: {all_count}, success:{all_count - len(failed_records)},"
-                f" failed: {len(failed_records)}")
-        return res
+        """
+        delete 批量删除当前记录集的所有记录，按 10 条一批次删除，可能会出现部分记录删除失败的情况。
+        建议不再使用此方法。
+        """
+        if self.count() > MAX_WRITE_RECORDS_PRE_REQ:
+            raise Exception('不能批量操作大于 10 条记录，请使用 chunks 方法，分批操作')
+        time.sleep(1 / QPS)
+        return self._dst.delete_records([rec.id for rec in self._records])
 
-    def _clone(self):
-        return QuerySet(self._dst, self._records)
+    def clone(self):
+        return QuerySet(self._dst, self._records[:])
 
-    def update(self, **kwargs) -> int:
+    def update(self, **kwargs) -> bool:
         """
         dst.records.filter(title=None).update(status="Pending")
         """
+        if self.count() > MAX_WRITE_RECORDS_PRE_REQ:
+            raise Exception('不能批量操作大于 10 条记录，请使用 chunks 方法，分批操作')
         patch_update_records_data = []
         for record in iter(self._records):
             data = {"recordId": record.id, "fields": kwargs}
             patch_update_records_data.append(data)
-        this_batch_records_len = len(patch_update_records_data)
-        has_failed = False
-        if patch_update_records_data:
-            update_success_count = 0
-            for chunk in chunks(patch_update_records_data, MAX_COUNT_CREATE_RECORDS_ONCE):
-                try:
-                    update_success_count += self._dst.update_records(chunk)
-                    time.sleep(1 / QPS)
-                except Exception as e:
-                    print(e)
-                    has_failed = True
-            if has_failed:
-                failed_count = this_batch_records_len - update_success_count
-                print(f"{failed_count} records update failed")
-            return update_success_count
-        return 0
+        time.sleep(1 / QPS)
+        self._records = self._dst.update_records(patch_update_records_data)
+        return True
 
     def count(self):
         return len(self)
@@ -96,11 +77,7 @@ class QuerySet:
             return self.filter(**kwargs).get()
         if self._records:
             return Record(self._dst, self._records[0])
-
         raise RecordDoesNotExist()
-
-    def all(self):
-        return QuerySet(self._dst, self._dst.raw_records)
 
     def filter(self, *args, **kwargs):
         """

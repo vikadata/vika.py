@@ -1,4 +1,7 @@
 from typing import Dict, Any
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
 
 FieldKeyMap = Dict[str, str]
 
@@ -43,5 +46,21 @@ def query_parse(field_key_map: FieldKeyMap, **kwargs):
     for k, v in kwargs.items():
         if query_str:
             query_str += " AND "
-        query_str += f"{{{trans_key(field_key_map, k)}}}={v}"
+        # 处理空值
+        if v is None:
+            v = 'BLANK()'
+        # 处理字符串
+        if isinstance(v, str):
+            v = f'"{v}"'
+        # 处理数组类型的值，多选，成员？
+        if isinstance(v, list):
+            v = f'"{", ".join(v)}"'
+        query_str += f'{{{trans_key(field_key_map, k)}}}={v}'
     return query_str
+
+
+def handle_response(r, resp_class: Generic[T]) -> T:
+    if r["success"]:
+        r = resp_class(**r)
+        return r
+    raise Exception(r['message'])

@@ -69,7 +69,13 @@ class UploadFileResponse(ResponseBase):
 
 # meta field
 class GETMetaFieldResponseData(BaseModel):
-    fields: List[MetaField]
+    items: List[MetaField]
+
+    class Config:
+        # https://github.com/samuelcolvin/pydantic/issues/1250
+        fields = {
+            "items": "fields",  # 服务端返回的数据为 fields，此字段为 pydantic 保留字段。
+        }
 
 
 class GETMetaFieldResponse(ResponseBase):

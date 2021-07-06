@@ -166,7 +166,6 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 | create      | dict   | Record   | 创建单条记录                    | `dst.records.create({"title":"new title"})`                                  |
 | bulk_create | dict[] | Record[] | 批量创建多条记录                | `dst.records.bulk_create([{"title":"new record1"},{"title":"new record2"}])` |
 | all         | **dict | QuerySet | 返回记录集合,可传参定制返回内容 | `dst.records.all()`                                                          |
-| count       | /      | int      | 记录总数                        | `dst.records.count()`                                                        |
 | get         | **dict | Record   | 单条记录                        | `dst.records.get(title="new title")`                                         |
 | filter      | **dict | QuerySet | 过滤一批记录                    | `dst.records.filter(title="new title")`                                      |
 
@@ -226,9 +225,7 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 
 ### all 参数
 
-当首次调用 all 不传入任何参数时，默认加载第一个视图的记录，后续的 filter、get 均在本地缓存数据中进行，all 方法仅在首次调用时，从服务端获取数据。
-
-当调用 all 时，显式地传入参数，则利用服务端计算返回部分数据集。
+当首次调用 all 不传入任何参数时，串行加载当前表的所有记录，返回 QuerySet。
 
 _传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载全部记录_
 
