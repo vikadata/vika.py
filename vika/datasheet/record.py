@@ -1,5 +1,6 @@
-from .exceptions import RecordWasDeleted, ErrorFieldKey
-from .types import RawRecord
+from vika.exceptions import RecordWasDeleted, ErrorFieldKey
+from vika.types import RawRecord
+from vika.utils import trans_key, trans_data
 
 
 class Record:
@@ -23,12 +24,12 @@ class Record:
     __repr__ = __str__
 
     def __getattr__(self, key):
-        trans_key = self._datasheet.trans_key(key)
-        if not trans_key:
-            raise Exception(f"record has no field:[{trans_key}]")
+        transformed_key = trans_key(self._datasheet.field_key_map, key)
+        if not transformed_key:
+            raise Exception(f"record has no field:[{key}]")
         # 数据里面能拿到，表示返回了
-        if trans_key in self._record.data:
-            return self._record.data.get(trans_key)
+        if transformed_key in self._record.data:
+            return self._record.data.get(transformed_key)
         # 数据里面拿不到，但存在这个字段。表示字段值为空
         if key in self._datasheet.fields:
             return None
@@ -38,6 +39,7 @@ class Record:
     def delete(self) -> bool:
         """
         删除此记录
+        @return: bool 是否成功删除, 删除异常也会抛错
         """
         self._check_record_status()
         return self._datasheet.delete_records([self._id])
@@ -46,16 +48,7 @@ class Record:
         if _key.startswith("_"):
             super().__setattr__(_key, value)
         elif _key in self._datasheet.fields:
-            key = self._datasheet.trans_key(_key)
-            # field = self._get_field(_key)
-            # 针对不同的字段做处理，校验。
-            # 1. 附件字段的自动处理，上传流程
-            # if field and field.type == "Attachment":
-            #     # 数组且值都是 string 才自动
-            #     if isinstance(value, list) and all(isinstance(i, str) for i in value):
-            #         value = [self._datasheet.upload_file(url) for url in value]
-            #     if not value:
-            #         value = None
+            key = trans_key(self._datasheet.field_key_map, _key)
             data = {"recordId": self._id, "fields": {key: value}}
             updated_records = self._datasheet.update_records(data)
             if updated_records:
@@ -70,7 +63,7 @@ class Record:
         return record_data
 
     def _make_update_body(self, data):
-        _data = self._datasheet.trans_data(data)
+        _data = trans_data(self._datasheet.field_key_map, data)
         data = {"recordId": self._id, "fields": _data}
         return data
 

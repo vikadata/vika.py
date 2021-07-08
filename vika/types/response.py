@@ -1,4 +1,7 @@
 from typing import Dict, Any, List, Optional
+
+from vika.types.node import NodeListItem, NodeDetail
+from vika.types.space import SpaceListItem
 from vika.types.record import RawRecord
 from vika.types.view import MetaView
 from vika.types.field import MetaField
@@ -95,3 +98,34 @@ class GETMetaViewResponse(ResponseBase):
     获取 meta view 返回数据
     """
     data: GETMetaViewResponseData
+
+
+# space
+class GETSpaceListResponseData(BaseModel):
+    spaces: List[SpaceListItem]
+
+
+class GETSpaceListResponse(ResponseBase):
+    """
+    获取「空间站列表」返回的数据
+    """
+    data: GETSpaceListResponseData
+
+
+# node
+class GETNodeListResponseData(BaseModel):
+    nodes: List[NodeListItem]
+
+
+class GETNodeListResponse(ResponseBase):
+    """
+    获取「文件列表」返回的数据
+    """
+    data: GETNodeListResponseData
+
+
+class GETNodeDetailResponse(ResponseBase):
+    """
+    获取「文件详情」返回的数据
+    """
+    data: NodeDetail

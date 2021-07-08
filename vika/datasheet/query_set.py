@@ -1,11 +1,10 @@
-import time
 from typing import List
 
-from .const import MAX_WRITE_RECORDS_PRE_REQ, QPS
-from .exceptions import RecordDoesNotExist
-from .record import Record
-from .types import RawRecord
-from .utils import chunks
+from vika.const import MAX_WRITE_RECORDS_PRE_REQ
+from vika.datasheet.record import Record
+from vika.exceptions import RecordDoesNotExist
+from vika.types import RawRecord
+from vika.utils import chunks, trans_key
 
 
 class QuerySet:
@@ -32,27 +31,39 @@ class QuerySet:
     def chunks(self):
         """
         将当前 QuerySet 拆分成多个最大记录数为 10 的 QuerySet
+        @return: iter[QuerySet] 迭代返回最大记录数为 10 的子 QuerySet
         """
         for chunk in chunks(self._records, MAX_WRITE_RECORDS_PRE_REQ):
             yield QuerySet(self._dst, chunk)
 
     def last(self):
+        """
+        获取最后一条记录
+        @return: Record
+        """
         return Record(self._dst, self._records[-1])
 
     def first(self):
+        """
+        获取第一条记录
+        @return: Record
+        """
         return Record(self._dst, self._records[0])
 
     def delete(self) -> bool:
         """
-        delete 批量删除当前记录集的所有记录，按 10 条一批次删除，可能会出现部分记录删除失败的情况。
-        建议不再使用此方法。
+        delete 批量删除当前记录集的所有记录，按 10 条一批次删除。记录集数量大于 10 条则报错
+        @return:
         """
         if self.count() > MAX_WRITE_RECORDS_PRE_REQ:
             raise Exception('不能批量操作大于 10 条记录，请使用 chunks 方法，分批操作')
-        time.sleep(1 / QPS)
         return self._dst.delete_records([rec.id for rec in self._records])
 
     def clone(self):
+        """
+        返回当前记录集的克隆副本
+        @return: QuerySet
+        """
         return QuerySet(self._dst, self._records[:])
 
     def update(self, **kwargs) -> bool:
@@ -65,16 +76,19 @@ class QuerySet:
         for record in iter(self._records):
             data = {"recordId": record.id, "fields": kwargs}
             patch_update_records_data.append(data)
-        time.sleep(1 / QPS)
         self._records = self._dst.update_records(patch_update_records_data)
         return True
 
     def count(self):
+        """
+        返回当前记录集的总记录数量
+        @return: int
+        """
         return len(self)
 
     def get(self, **kwargs):
-        if kwargs.keys():
-            return self.filter(**kwargs).get()
+        if kwargs:
+            return self.filter(**kwargs).first()
         if self._records:
             return Record(self._dst, self._records[0])
         raise RecordDoesNotExist()
@@ -94,7 +108,7 @@ class QuerySet:
         #     if isinstance(filter_func_or_key, FunctionType):
         #         if kwargs:
         #             raise Exception("function filter can't be used with key-value filter")
-        kwargs = {self._dst.trans_key(k): v for k, v in kwargs.items()}
+        kwargs = {trans_key(self._dst.field_key_map, k): v for k, v in kwargs.items()}
 
         def filter_record(record) -> bool:
             return all(

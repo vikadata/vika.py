@@ -6,12 +6,12 @@ from urllib.parse import urljoin
 
 import requests
 
-from .const import API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
-from .exceptions import ErrorSortParams
-from .field_manager import FieldManager
-from .record import Record
-from .record_manager import RecordManager
-from .types.response import (
+from vika.const import API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
+from vika.exceptions import ErrorSortParams
+from vika.datasheet.field_manager import FieldManager
+from vika.datasheet.record import Record
+from vika.datasheet.record_manager import RecordManager
+from vika.types.response import (
     GETMetaFieldResponse,
     PatchRecordResponse,
     PostRecordResponse,
@@ -20,8 +20,8 @@ from .types.response import (
     RawRecord,
     GETMetaViewResponse, GETRecordResponse,
 )
-from .utils import FieldKeyMap, handle_response
-from .view_manager import ViewManager
+from vika.utils import FieldKeyMap, handle_response, check_sort_params, trans_data
+from vika.datasheet.view_manager import ViewManager
 
 
 class Datasheet:
@@ -61,38 +61,19 @@ class Datasheet:
     def records(self):
         return RecordManager(self)
 
-    def trans_key(self, key):
-        """
-        存在字段映射时，将映射的 key 转为实际的 key
-        """
-        field_key_map = self.field_key_map
-        if key in ["_id", "recordId"]:
-            return key
-        if field_key_map:
-            _key = field_key_map.get(key, key)
-            return _key
-        return key
-
-    def trans_data(self, data):
-        field_key_map = self.field_key_map
-        if field_key_map:
-            _data = {}
-            for k, v in data.items():
-                _k = field_key_map.get(k, k)
-                _data[_k] = v
-            return _data
-        return data
-
     # 下面是数表管理的请求
     # 字段相关
-    def get_fields(self):
+    def get_fields(self, **kwargs):
         """
         获取 field meta
+        @param kwargs:
+            - viewId: 'viewId'
+        @return:
         """
         api_endpoint = urljoin(
             self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/fields"
         )
-        r = self.vika.request.get(api_endpoint).json()
+        r = self.vika.request.get(api_endpoint, params=kwargs).json()
         return handle_response(r, GETMetaFieldResponse)
 
     def get_views(self):
@@ -117,7 +98,7 @@ class Datasheet:
             if key in API_GET_DATASHEET_QS_SET:
                 params_value = kwargs.get(key)
                 if key == 'sort':
-                    if self.check_sort_params(params_value):
+                    if check_sort_params(params_value):
                         params_value = [json.dumps(i) for i in params_value]
                     else:
                         raise ErrorSortParams('sort 参数格式有误')
@@ -152,12 +133,12 @@ class Datasheet:
         """
         if type(data) is list:
             data = {
-                "records": [{"fields": self.trans_data(item)} for item in data],
+                "records": [{"fields": trans_data(self.field_key_map, item)} for item in data],
                 "fieldKey": self.field_key,
             }
         else:
             data = {
-                "records": [{"fields": self.trans_data(data)}],
+                "records": [{"fields": trans_data(self.field_key_map, data)}],
                 "fieldKey": self.field_key,
             }
         r = self.vika.request.post(self._record_api_endpoint, json=data).json()

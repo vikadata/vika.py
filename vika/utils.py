@@ -1,5 +1,6 @@
 from typing import Dict, Any
 from typing import TypeVar, Generic
+from urllib.parse import urlparse
 
 T = TypeVar('T')
 
@@ -64,3 +65,21 @@ def handle_response(r, resp_class: Generic[T]) -> T:
         r = resp_class(**r)
         return r
     raise Exception(r['message'])
+
+
+def check_sort_params(sort):
+    if not isinstance(sort, list):
+        return False
+    return all([('field' in i and 'order' in i) for i in sort])
+
+
+def get_dst_id(dst_id_or_url: str):
+    if dst_id_or_url.startswith("dst"):
+        return dst_id_or_url
+    elif dst_id_or_url.startswith("http"):
+        url = urlparse(dst_id_or_url)
+        url_path_list = url.path.split("/")
+        dst_id = url_path_list[-2]
+        return dst_id
+    else:
+        raise Exception('Bad Datasheet Id or URL')
