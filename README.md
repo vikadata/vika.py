@@ -1,3 +1,5 @@
+> ⚠️ 请参考[迁移指南](https://github.com/vikadata/vika.py/blob/master/docs/upgrade-to-v1.md) 从 0.1.x 升级至 1.x 版本，旧版本我们将不再维护!
+
 ![vika.py](https://socialify.git.ci/vikadata/vika.py/image?description=1&descriptionEditable=Vika%20is%20a%20API-based%20SaaS%20database%20platform%20for%20users%20and%20developers%20here%27s%20Python%20SDK%20for%20integration.&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fs1.vika.cn%2Fspace%2F2020%2F09%2F04%2F9fcd0d98c2c74274840fcde3341d5164&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
 
 [Vika](https://vika.cn) Python SDK 是对维格表 Fusion API 的官方封装，提供类似 Django ORM 风格的 API。
@@ -8,7 +10,7 @@
 
 ### 环境要求
 
-python3.6 + 
+python3.6 +
 
 ### 安装
 
@@ -26,6 +28,7 @@ pip install --upgrade vika
 
 ```python
 from vika import Vika
+
 vika = Vika("your api_token")
 
 dst = vika.datasheet("dstt3KGCKtp11fgK0t")
@@ -33,14 +36,14 @@ dst = vika.datasheet("dstt3KGCKtp11fgK0t")
 # dst = vika.datasheet("https://vika.cn/space/spcxcvEBLXf7X/workbench/dstt3KGCKtp11fgK0t/viwmKtRiYcPfk")
 
 # 创建记录
-record = dst.records.create({"title":"new record from Python SDK"})
+record = dst.records.create({"title": "new record from Python SDK"})
 print(record.title)
-#print(record.标题)
+# print(record.标题)
 
 # 批量创建记录
 records = dst.records.bulk_create([
-  {"title":"new record from Python SDK"},
-  {"title":"new record from Python SDK2"}
+    {"title": "new record from Python SDK"},
+    {"title": "new record from Python SDK2"}
 ])
 
 # 更新单个字段值
@@ -50,14 +53,13 @@ print(record.title)
 
 # 更新多个字段值
 record.update({
-  "title":"new title",
-  "other_field": "new value",
+    "title": "new title",
+    "other_field": "new value",
 })
 
 # 附件字段更新
-my_file = dst.upload_file(<本地或网络文件路径>)
+my_file = dst.upload_file( < 本地或网络文件路径 >)
 record.files = [my_file]
-
 
 # 过滤记录
 songs = dst_songs.records.filter(artist="faye wong")
@@ -77,6 +79,16 @@ record.json()
 # 删除符合过滤条件的一批记录
 dst.records.filter(title=None).delete()
 
+# 获取字段
+field = dst.fields[0]
+field = dst.fields.get(name="标题")
+field = dst.fields.get(id="fidxxxxx")
+print(field.name, field.desc, field.type)
+
+# 获取视图
+view = dst.views[0]
+print(view.type, view.name)
+
 ```
 
 ### 字段映射
@@ -88,8 +100,6 @@ dst.records.filter(title=None).delete()
 | Bug 标题\!     | Bug状态 |
 | -------------- | ------- |
 | 登陆后页面崩溃 | 待修复  |
-|                |         |
-
 
 ```python 
 dst = vika.datasheet("dstt3KGCKtp11fgK0t",field_key_map={
@@ -106,13 +116,14 @@ record.state="已修复"
 ```
 
 保留使用 field id 作 key 的用法
+
 ```python
 bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id")
 row = bug.records.get(flddpSLHEzDPQ="登陆后页面崩溃")
 row.flddpSLHEzDPQ = "登陆后页面崩溃"
 row.update({
-  "flddpSLHEzDPQ": "登陆后页面崩溃",
-  "fldwvNDf9teD2": "已修复"
+    "flddpSLHEzDPQ": "登陆后页面崩溃",
+    "fldwvNDf9teD2": "已修复"
 })
 
 ```
@@ -121,14 +132,16 @@ row.update({
 
 ```python
 bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
-  "title":"flddpSLHEzDPQ",
-  "state":"fldwvNDf9teD2",
+    "title": "flddpSLHEzDPQ",
+    "state": "fldwvNDf9teD2",
 })
 ```
 
-## API 
+## API
 
-### records 方法
+### 维格表
+#### records 方法
+
 `dst.records` 管理表格中的记录。
 
 | 方法        | 参数   | 返回类型 | 说明                            | 例子                                                                         |
@@ -136,11 +149,10 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 | create      | dict   | Record   | 创建单条记录                    | `dst.records.create({"title":"new title"})`                                  |
 | bulk_create | dict[] | Record[] | 批量创建多条记录                | `dst.records.bulk_create([{"title":"new record1"},{"title":"new record2"}])` |
 | all         | **dict | QuerySet | 返回记录集合,可传参定制返回内容 | `dst.records.all()`                                                          |
-| count       | /      | int      | 记录总数                        | `dst.records.count()`                                                        |
 | get         | **dict | Record   | 单条记录                        | `dst.records.get(title="new title")`                                         |
 | filter      | **dict | QuerySet | 过滤一批记录                    | `dst.records.filter(title="new title")`                                      |
 
-### QuerySet
+#### QuerySet
 
 返回 QuerySet 的方法可以进行链式调用
 
@@ -152,61 +164,82 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 | count  | /      | int      | 记录总数               | `dst.records.filter(title="new title").count()`                   |
 | last   | /      | Record   | 最后一条记录           | `dst.records.filter(title="new title").last()`                    |
 | first  | /      | Record   | 第一条记录             | `dst.records.filter(title="new title").first()`                   |
-| update | **dict | int      | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
+| update | **dict | Record   | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
 | delete | /      | bool     | 是否删除成功           | `dst.records.filter(title="new title").delete()`                  |
 
-### Record
+#### Record
 
-查询出来的 QuerySet 是一个 Record 的集合。单个 Record 可以通过 `record.字段名` 的方式获取值。
- 
-| 方法/属性 | 参数 | 返回类型 | 说明                     | 例子            |
-| ---- | ---- | -------- | ------------------------ | --------------- |
-| json | /    | dict     | 返回当前记录的所有字段值 | `record.json()` |
-| _id | /    | str     | _id 是保留属性，返回当前记录的 recordId | `record._id` |
+查询出来的 QuerySet 是一个 Record 的集合。单个 Record 可以通过 `record.字段名` 的方式获取指定字段的值。
 
-### 字段值
+**请尽量避免字段名和 Record 保留的方法属性同名，表格中的同名字段会被遮蔽。如果确实存在，请使用字段映射配置**
 
-维格列字段值与 Python 数据结构的映射关系。
-维格表中单元格为空的数据始终是 null，API 返回的记录中，不会包含值为 null 的字段。
+| 方法/属性 | 参数 | 返回类型 | 说明                                    | 例子            |
+| --------- | ---- | -------- | --------------------------------------- | --------------- |
+| json      | /    | dict     | 返回当前记录的所有字段值                | `record.json()` |
+| _id       | /    | str      | _id 是保留属性，返回当前记录的 recordId | `record._id`    |
 
-| 维格列类型 | 数据类型             |
-| ---------- | -------------------- |
-| 单行文本   | str                  |
-| 多行文本   | str                  |
-| 单选       | str                  |
-| 多选       | str[]                |
-| 网址       | str                  |
-| 电话       | str                  |
-| 邮箱       | str                  |
-| 数字       | number               |
-| 货币       | number               |
-| 百分比     | number               |
-| 自增数字   | number               |
-| 日期       | number               |
-| 创建时间   | number               |
-| 修改时间   | number               |
+#### 字段值
+
+维格列字段值与 Python 数据结构的映射关系。 维格表中单元格为空的数据始终是 null，API 返回的记录中，不会包含值为 null 的字段。
+
+| 维格列类型 | 数据类型            |
+| ---------- | ------------------- |
+| 单行文本   | str                 |
+| 多行文本   | str                 |
+| 单选       | str                 |
+| 多选       | str[]               |
+| 网址       | str                 |
+| 电话       | str                 |
+| 邮箱       | str                 |
+| 数字       | number              |
+| 货币       | number              |
+| 百分比     | number              |
+| 自增数字   | number              |
+| 日期       | number              |
+| 创建时间   | number              |
+| 修改时间   | number              |
 | 附件       | attachment object[] |
-| 成员       | unit object[]        |
-| 勾选       | bool                 |
-| 评分       | int                  |
-| 创建人     | unit object          |
-| 修改人     | unit object          |
-| 神奇关联   | str[]                |
-| 神奇引用   | any[]                |
-| 智能公式   | str / bool           |
+| 成员       | unit object[]       |
+| 勾选       | bool                |
+| 评分       | int                 |
+| 创建人     | unit object         |
+| 修改人     | unit object         |
+| 神奇关联   | str[]               |
+| 神奇引用   | any[]               |
+| 智能公式   | str / bool          |
 
+#### all 参数
 
-### all 参数
+all 方法会自动处理分页加载全部资源
 
-当首次调用 all 不传入任何参数时，默认加载第一个视图的记录，后续的 filter、get 均在本地缓存数据中进行，all 方法仅在首次调用时，从服务端获取数据。
+_传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载全部记录，只返回指定页数据_。
 
-当调用 all 时，显式地传入参数，则利用服务端计算返回部分数据集。
+> 尽量避免在不加参数的情况下使用 dst.records.all 方法，获取全部数据。
+> API 每次请求最多获取 1000 条数据，如果你的数据量过大，接近 50000 的限制。在不加任何参数的情况下，调用 all 会串行请求 50 次 API。 不仅非常慢，而且消耗 API 请求额度。
 
-_传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载全部记录_ 
+*返回指定分页的记录*
+
+```python
+dst.records.all(pageNum=3)
+```
+
+*搭配视图使用*
+
+指定视图 id 返回和视图中相同的数据。
+
+```python
+dst.records.all(viewId="viwxxxxxx")
+```
+
+*使用公式筛选数据*
+
+```python
+dst.records.all(filterByformula='{title}="hello"')
+```
 
 | 参数            | 类型           | 说明                                                                          | 例子                                  |
 | --------------- | -------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
-| viewId          | str            | 视图ID。默认为维格表中第一个视图。请求会返回视图中经过视图中筛选/排序后的结果 |                                       |
+| viewId          | str            | 视图ID。请求会返回视图中经过视图中筛选/排序后的结果 |                                       |
 | pageNum         | int            | 默认 1                                                                        |                                       |
 | pageSize        | int            | 默认 100 ， 最大 1000                                                         |                                       |
 | sort            | dict[]         | 指定排序的字段，会覆盖视图排序条件                                            | `[{ field: 'field1', order: 'asc' }]` |
@@ -217,8 +250,11 @@ _传入分页相关参数（pageNum、pageSize）时，SDK 不会再自动加载
 | cellFormat      | 'json' or 'string' | 默认为 'json'，指定为 'string' 时所有值都将被自动转换为 string 格式。       |                               |
 | fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                       |
 
-
 参见：[公式使用方式](https://vika.cn/help/tutorial-getting-started-with-formulas/)
+
+### 空间站
+
+### 文件目录
 
 ## 开发测试
 
@@ -248,26 +284,35 @@ python -m unittest test
 
 + [JavaScript SDK](https://github.com/vikadata/vika.js)
 + [Golang SDK](https://github.com/vikadata/vika.go)
-+ [PHP SDK](https://github.com/vikadata/vika.php)
++ [Java SDK](https://github.com/vikadata/vika.java)
 
 ## FAQ
 
 ### 可以拿到表格的字段类型（meta）信息吗？
 
-目前不可以，后续 REST API 升级会暴露表格 meta 信息
+~~目前不可以，后续 REST API 升级会暴露表格 meta 信息~~
+
+可以通过 fields/views 接口获取
 
 ### 可以自动创建单多选选项吗？
+
 ```
 record.tags = ["目前 tags 字段中不存在的选项"]
 ```
-目前不可以，你只能赋值已经存在的选项。后续会支持 :D
+
+~~目前不可以，你只能赋值已经存在的选项。后续会支持 :D~~
+
+现在已经支持，如果写入不存在的单多选字段，自动创建该选项
 
 ### 单个表格最大支持多少条记录？
 
 目前单表最大支持 5w 条记录
 
-## TODO
+### 每次请求可以处理更多的记录吗？
 
-+ [ ] 优化数据集较大时的网络请求
-+ [ ] 网络请求封装 & 错误处理
-+ [ ] filter 操作符
+目前是 10条。后续我们会根据实际情况，调整该限制的大小。
+
+### 每次请求可以获取更多的记录吗?
+
+目前最大值是 1000 条。后续我们会根据实际情况，调整该限制的大小。
+

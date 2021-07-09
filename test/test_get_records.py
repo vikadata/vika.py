@@ -4,14 +4,14 @@ from vika import Vika
 from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN
 
 
-class TestGet(unittest.TestCase):
+class TestGetRecords(unittest.TestCase):
     def setUp(self):
         vika = Vika(TEST_API_TOKEN)
         vika.set_api_base(TEST_API_BASE)
         self.dst = vika.datasheet(TEST_TABLE)
 
     def test_record_count(self):
-        self.assertEqual(self.dst.records.count(), 1)
+        self.assertEqual(self.dst.records.all().count(), 1)
 
     def test_record_filter_get(self):
         self.assertEqual(self.dst.records.filter(title="无人生还").get().title, "无人生还")

@@ -4,18 +4,18 @@ from vika import Vika
 from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN
 
 
-class TestCreate(unittest.TestCase):
+class TestCreateRecords(unittest.TestCase):
     def setUp(self):
         vika = Vika(TEST_API_TOKEN)
         vika.set_api_base(TEST_API_BASE)
         self.dst = vika.datasheet(TEST_TABLE)
 
     def test_record_create(self):
-        time.sleep(2)
+        time.sleep(1)
         record = self.dst.records.create({
             "title": "高等数学"
         })
-        time.sleep(2)
+        time.sleep(1)
         self.assertIsNotNone(record._id)
         records = self.dst.records.bulk_create([
             {
