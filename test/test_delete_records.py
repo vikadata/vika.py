@@ -6,7 +6,7 @@ from vika import Vika
 from . import TEST_API_BASE, TEST_API_TOKEN, TEST_TABLE
 
 
-class TestDelete(unittest.TestCase):
+class TestDeleteRecords(unittest.TestCase):
     def setUp(self):
         vika = Vika(TEST_API_TOKEN)
         vika.set_api_base(TEST_API_BASE)
@@ -25,7 +25,7 @@ class TestDelete(unittest.TestCase):
         self.assertIsNotNone(e)
 
     def tearDown(self):
-        time.sleep(2)
+        time.sleep(1)
         self.dst.records.create({"title": "无人生还"})
 
 

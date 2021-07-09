@@ -4,7 +4,7 @@ from vika import Vika
 from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN
 
 
-class TestGet(unittest.TestCase):
+class TestGetRecords(unittest.TestCase):
     def setUp(self):
         vika = Vika(TEST_API_TOKEN)
         vika.set_api_base(TEST_API_BASE)
