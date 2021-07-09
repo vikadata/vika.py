@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="vika",
-    version="1.0.0",
+    version="1.0.1",
     author="vikadata",
     author_email="dev@vikadata.com",
     description="维格表官方 Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/vikadata/vika.py",
-    packages=["vika"],
+    packages=["vika", "vika.datasheet", "vika.types", "vika.node", "vika.space"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
