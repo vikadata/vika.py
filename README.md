@@ -4,6 +4,8 @@
 
 [Vika](https://vika.cn) Python SDK 是对维格表 Fusion API 的官方封装，提供类似 Django ORM 风格的 API。
 
+用户交流QQ群：683795224
+
 ## 快速开始
 
 ### 环境要求
@@ -245,6 +247,7 @@ dst.records.all(filterByformula='{title}="hello"')
 | fields          | str[]          | 只有指定字段会返回                                                            |                                       |
 | filterByFormula | str            | 使用公式作为筛选条件，返回匹配的记录                                          |                                       |
 | maxRecords      | int            | 限制返回记录数，默认 5000                                                     |                                       |
+| cellFormat      | 'json' or 'string' | 默认为 'json'，指定为 'string' 时所有值都将被自动转换为 string 格式。       |                               |
 | fieldKey        | 'name' or 'id' | 指定 field 查询和返回的 key。默认使用列名 'name'。                            |                                       |
 
 参见：[公式使用方式](https://vika.cn/help/tutorial-getting-started-with-formulas/)
