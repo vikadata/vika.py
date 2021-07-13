@@ -80,14 +80,16 @@ record.json()
 dst.records.filter(title=None).delete()
 
 # 获取字段
-field = dst.fields[0]
-field = dst.fields.get(name="标题")
-field = dst.fields.get(id="fidxxxxx")
-print(field.name, field.desc, field.type)
-
+for field in vika.datasheet("dstId").fields.all():
+  print(field.name)
+  
+# 获取指定视图的字段，隐藏的字段不会返回
+for field in vika.datasheet("dstId").fields.all(viewId="viewId"):
+  print(field.name)
+ 
 # 获取视图
-view = dst.views[0]
-print(view.type, view.name)
+for view in vika.datasheet("dstId").views.all():
+  print(view.name)
 
 ```
 
