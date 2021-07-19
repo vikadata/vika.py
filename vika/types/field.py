@@ -1,7 +1,8 @@
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Any
 
 from pydantic import BaseModel
+from pydantic.typing import ForwardRef
 
 
 class MemberEnum(str, Enum):
@@ -89,11 +90,11 @@ class UserOption(BaseModel):
     avatar: str
 
 
-class CreateByFieldProperty(BaseModel):
+class CreatedByFieldProperty(BaseModel):
     options: List[UserOption]
 
 
-class LastModifiedByFieldProperty(CreateByFieldProperty):
+class LastModifiedByFieldProperty(CreatedByFieldProperty):
     pass
 
 
@@ -127,8 +128,7 @@ class MagicLinkFieldProperty(BaseModel):
 
 class FieldPropertyWithDstId(BaseModel):
     datasheetId: str
-    field: "MetaField"
-
+    field: ForwardRef("MetaField")
 
 class MagicLookupFieldProperty(BaseModel):
     relatedLinkFieldId: str
@@ -146,18 +146,17 @@ class FormulaFieldProperty(BaseModel):
 
 
 FieldProperty = Union[
-    SingleTextFieldProperty,
     NumberFieldProperty,
+    SingleTextFieldProperty,
     CurrencyFieldProperty,
     PercentFieldProperty,
     SingleSelectFieldProperty,
     MultiSelectFieldProperty,
     MemberFieldProperty,
-    CreateByFieldProperty,
+    CreatedByFieldProperty,
     LastModifiedByFieldProperty,
     CheckboxFieldProperty,
     RatingFieldProperty,
-    DateTimeFieldProperty,
     DateTimeFieldProperty,
     CreatedTimeFieldProperty,
     LastModifiedTimeFieldProperty,
@@ -167,12 +166,52 @@ FieldProperty = Union[
 ]
 
 
+
 # field item
 class MetaField(BaseModel):
     id: str
     name: str
     type: str
-    isPrimary: Optional[bool]
+    isPrimary: Optional[bool] = False
     desc: Optional[str]
-    property: Optional[FieldProperty]
     editable: Optional[bool]
+
+    # Union Types 解析不正确，这里先写 Any 手动解析。
+    # fuck https://github.com/samuelcolvin/pydantic/issues/2941
+    property: Any = None
+    
+    def __init__(self, property=None, **data) -> None:        
+        property_model = self.get_property_by_type(data['type'])
+        _property = property_model(**property) if property_model else property
+        super().__init__(property= _property, **data)
+
+    @staticmethod
+    def get_property_by_type(type):
+        type_property_map = {
+            "SingleText": SingleTextFieldProperty,
+            "Text": None,
+            "SingleSelect": SingleSelectFieldProperty,
+            "MultiSelect": MultiSelectFieldProperty,
+            "Number": NumberFieldProperty,
+            "Currency": CurrencyFieldProperty,
+            "Percent": PercentFieldProperty,
+            "DateTime": DateTimeFieldProperty,
+            "Attachment": None,
+            "Member": MemberFieldProperty,
+            "Checkbox": CheckboxFieldProperty,
+            "Rating": RatingFieldProperty,
+            "URL": None,
+            "Phone": None,
+            "Email": None,
+            "MagicLink": MagicLinkFieldProperty,
+            "MagicLookUp": MagicLookupFieldProperty,
+            "Formula": FormulaFieldProperty,
+            "AutoNumber": None,
+            "CreatedTime": CreatedTimeFieldProperty,
+            "LastModifiedTime": LastModifiedTimeFieldProperty,
+            "CreatedBy": CreatedByFieldProperty,
+            "LastModifiedBy": LastModifiedByFieldProperty,
+        }
+        return type_property_map.get(type, None)
+
+FieldPropertyWithDstId.update_forward_refs()
