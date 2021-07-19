@@ -109,8 +109,8 @@ class RatingFieldProperty(BaseModel):
 
 class DateTimeFieldProperty(BaseModel):
     format: str
-    autoFill: bool
-    includeTime: bool
+    autoFill: bool = False
+    includeTime: bool = False
 
 
 class CreatedTimeFieldProperty(DateTimeFieldProperty):
@@ -123,7 +123,7 @@ class LastModifiedTimeFieldProperty(DateTimeFieldProperty):
 
 class MagicLinkFieldProperty(BaseModel):
     foreignDatasheetId: str
-    brotherFieldId: str
+    brotherFieldId: Optional[str] = "" # 字表关联没有兄弟字段
 
 
 class FieldPropertyWithDstId(BaseModel):
@@ -136,12 +136,12 @@ class MagicLookupFieldProperty(BaseModel):
     hasError: Optional[bool]
     entityField: Optional[FieldPropertyWithDstId]
     rollupFunction: RollUpFunctionEnum
-    valueType: ComputeValueTypeEnum
+    valueType: Optional[ComputeValueTypeEnum] = ComputeValueTypeEnum.String
 
 
 class FormulaFieldProperty(BaseModel):
     expression: Optional[str]  # 一定会有公式表达式吗
-    valueType: ComputeValueTypeEnum
+    valueType: Optional[ComputeValueTypeEnum] = ComputeValueTypeEnum.String
     hasError: Optional[bool]
 
 
