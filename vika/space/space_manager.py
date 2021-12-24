@@ -18,8 +18,8 @@ class SpaceManager:
         """
         获取 field meta
         """
-        r = self.vika.request.get(self._api_endpoint).json()
-        return handle_response(r, GETSpaceListResponse)
+        resp = self.vika.request.get(self._api_endpoint)
+        return handle_response(resp, GETSpaceListResponse)
 
     def all(self):
         """

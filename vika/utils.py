@@ -1,6 +1,11 @@
+import json
+
+from json import JSONDecodeError
 from typing import Dict, Any
 from typing import TypeVar, Generic
 from urllib.parse import urlparse
+from vika.exceptions import ResponseBodyParserError, ServerError
+
 
 T = TypeVar('T')
 
@@ -60,11 +65,19 @@ def query_parse(field_key_map: FieldKeyMap, **kwargs):
     return query_str
 
 
-def handle_response(r, resp_class: Generic[T]) -> T:
-    if r["success"]:
-        r = resp_class(**r)
-        return r
-    raise Exception(r['message'])
+def handle_response(resp, resp_class: Generic[T]) -> T:
+    if resp.status_code >= 500:
+        raise ServerError(f"API Server Error: {r.status_code}")
+    try:
+        r = resp.json()
+        if r["success"]:
+            try:
+                return resp_class(**r)
+            except:
+                raise ResponseBodyParserError(f"Response Body Parser Error: {r.text}")
+        raise Exception(r['message'])
+    except JSONDecodeError:
+        raise Exception(f"JSON Parser Error: {r.text}")
 
 
 def check_sort_params(sort):

@@ -18,13 +18,13 @@ class NodeManager:
         """
         node_list_resp = self.vika.request.get(
             urljoin(self.vika.api_base, f"/fusion/v1/spaces/{space_id}/nodes")
-        ).json()
+        )
         return handle_response(node_list_resp, GETNodeListResponse)
 
     def _get_node_detail(self, node_id: str) -> GETNodeDetailResponse:
         node_detail_resp = self.vika.request.get(
             urljoin(self.vika.api_base, f"/fusion/v1/nodes/{node_id}")
-        ).json()
+        )
         return handle_response(node_detail_resp, GETNodeDetailResponse)
 
     def all(self, **kwargs):

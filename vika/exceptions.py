@@ -48,3 +48,22 @@ class UploadFileError(Exception):
     上传附件失败
     """
     pass
+
+
+class JSONDecodeError(Exception):
+    """
+    JSON 解析错误
+    """
+    pass
+
+class ResponseBodyParserError(Exception):
+    """
+    解析响应体失败
+    """
+    pass
+
+class ServerError(Exception):
+    """
+    服务器错误
+    """
+    pass

@@ -73,8 +73,8 @@ class Datasheet:
         api_endpoint = urljoin(
             self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/fields"
         )
-        r = self.vika.request.get(api_endpoint, params=kwargs).json()
-        return handle_response(r, GETMetaFieldResponse)
+        resp = self.vika.request.get(api_endpoint, params=kwargs)
+        return handle_response(resp, GETMetaFieldResponse)
 
     def get_views(self):
         """
@@ -103,9 +103,8 @@ class Datasheet:
                     else:
                         raise ErrorSortParams('sort 参数格式有误')
                 params.update({key: params_value})
-        resp = self.vika.request.get(self._record_api_endpoint, params=params).json()
-        resp = handle_response(resp, GETRecordResponse)
-        return resp
+        resp = self.vika.request.get(self._record_api_endpoint, params=params)
+        return handle_response(resp, GETRecordResponse)
 
     def get_records_all(self, **kwargs) -> List[RawRecord]:
         """
@@ -141,8 +140,8 @@ class Datasheet:
                 "records": [{"fields": trans_data(self.field_key_map, data)}],
                 "fieldKey": self.field_key,
             }
-        r = self.vika.request.post(self._record_api_endpoint, json=data).json()
-        return handle_response(r, PostRecordResponse)
+        resp = self.vika.request.post(self._record_api_endpoint, json=data)
+        return handle_response(resp, PostRecordResponse)
 
     def delete_records(self, rec_list) -> bool:
         """
@@ -154,8 +153,8 @@ class Datasheet:
         else:
             rec = rec_list
             ids = rec._id if type(rec) is Record else rec
-        r = self.vika.request.delete(api_endpoint, params={"recordIds": ids}).json()
-        r = handle_response(r, DeleteRecordResponse)
+        resp = self.vika.request.delete(api_endpoint, params={"recordIds": ids})
+        r = handle_response(resp, DeleteRecordResponse)
         return r.success
 
     def update_records(self, data) -> List[RawRecord]:
