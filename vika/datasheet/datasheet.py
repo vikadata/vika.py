@@ -20,7 +20,7 @@ from vika.types.response import (
     RawRecord,
     GETMetaViewResponse, GETRecordResponse,
 )
-from vika.utils import FieldKeyMap, handle_response, check_sort_params, trans_data
+from vika.utils import FieldKeyMap, handle_response, check_sort_params, trans_data, timed_lru_cache
 from vika.datasheet.view_manager import ViewManager
 
 
@@ -46,6 +46,7 @@ class Datasheet:
         return urljoin(self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/records")
 
     @property
+    @timed_lru_cache(seconds=300)
     def fields(self):
         return FieldManager(self)
 
