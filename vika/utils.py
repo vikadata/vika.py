@@ -1,7 +1,7 @@
 import json
 
 from functools import lru_cache, wraps
-from time import monotonic_ns
+from time import monotonic
 from json import JSONDecodeError
 from typing import Dict, Any
 from typing import TypeVar, Generic
@@ -114,14 +114,14 @@ def timed_lru_cache(
 
     def wrapper_cache(f):
         f = lru_cache(maxsize=maxsize, typed=typed)(f)
-        f.delta = seconds * 10 ** 9
-        f.expiration = monotonic_ns() + f.delta
+        f.delta = seconds
+        f.expiration = monotonic() + f.delta
 
         @wraps(f)
         def wrapped_f(*args, **kwargs):
-            if monotonic_ns() >= f.expiration:
+            if monotonic() >= f.expiration:
                 f.cache_clear()
-                f.expiration = monotonic_ns() + f.delta
+                f.expiration = monotonic() + f.delta
             return f(*args, **kwargs)
 
         wrapped_f.cache_info = f.cache_info
