@@ -76,10 +76,10 @@ def handle_response(resp, resp_class: Generic[T]) -> T:
             try:
                 return resp_class(**r)
             except:
-                raise ResponseBodyParserError(f"Response Body Parser Error: {r.text}")
+                raise ResponseBodyParserError(f"Response Body Parser Error: {resp.text}")
         raise Exception(r['message'])
     except JSONDecodeError:
-        raise Exception(f"JSON Parser Error: {r.text}")
+        raise Exception(f"JSON Parser Error: {resp.text}")
 
 
 def check_sort_params(sort):
