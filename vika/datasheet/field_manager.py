@@ -19,7 +19,7 @@ class FieldManager:
         刷新字段 meta 缓存，默认缓存 5 分钟，可以手动刷新。
         """
         self._is_fetched = False
-        
+
     def _check_meta(self, **kwargs):
         if not self._is_fetched:
             fields_resp = self.dst.get_fields(**kwargs)
