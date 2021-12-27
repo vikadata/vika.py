@@ -50,13 +50,13 @@ class QuerySet:
         """
         return Record(self._dst, self._records[0])
 
-    def delete(self) -> bool:
+    def delete(self, delete_all=False) -> bool:
         """
         delete 批量删除当前记录集的所有记录，按 10 条一批次删除。记录集数量大于 10 条则报错
         @return:
         """
-        if self.count() > MAX_WRITE_RECORDS_PRE_REQ:
-            raise Exception('不能批量操作大于 10 条记录，请使用 chunks 方法，分批操作')
+        if not delete_all and self.count() > MAX_WRITE_RECORDS_PRE_REQ:
+            raise Exception('不能批量操作大于 10 条记录，请使用 chunks 方法，分批操作。')
         return self._dst.delete_records([rec.id for rec in self._records])
 
     def clone(self):

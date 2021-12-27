@@ -56,11 +56,13 @@ class JSONDecodeError(Exception):
     """
     pass
 
+
 class ResponseBodyParserError(Exception):
     """
     解析响应体失败
     """
     pass
+
 
 class ServerError(Exception):
     """

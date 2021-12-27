@@ -123,12 +123,13 @@ class LastModifiedTimeFieldProperty(DateTimeFieldProperty):
 
 class MagicLinkFieldProperty(BaseModel):
     foreignDatasheetId: str
-    brotherFieldId: Optional[str] = "" # 字表关联没有兄弟字段
+    brotherFieldId: Optional[str] = ""  # 字表关联没有兄弟字段
 
 
 class FieldPropertyWithDstId(BaseModel):
     datasheetId: str
     field: ForwardRef("MetaField")
+
 
 class MagicLookupFieldProperty(BaseModel):
     relatedLinkFieldId: str
@@ -166,7 +167,6 @@ FieldProperty = Union[
 ]
 
 
-
 # field item
 class MetaField(BaseModel):
     id: str
@@ -179,11 +179,11 @@ class MetaField(BaseModel):
     # Union Types 解析不正确，这里先写 Any 手动解析。
     # fuck https://github.com/samuelcolvin/pydantic/issues/2941
     property: Any = None
-    
-    def __init__(self, property=None, **data) -> None:        
+
+    def __init__(self, property=None, **data) -> None:
         property_model = self.get_property_by_type(data['type'])
         _property = property_model(**property) if property_model else property
-        super().__init__(property= _property, **data)
+        super().__init__(property=_property, **data)
 
     @staticmethod
     def get_property_by_type(type):
@@ -213,5 +213,6 @@ class MetaField(BaseModel):
             "LastModifiedBy": LastModifiedByFieldProperty,
         }
         return type_property_map.get(type, None)
+
 
 FieldPropertyWithDstId.update_forward_refs()
