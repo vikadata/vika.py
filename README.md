@@ -236,7 +236,7 @@ dst.records.all(viewId="viwxxxxxx")
 *使用公式筛选数据*
 
 ```python
-dst.records.all(filterByformula='{title}="hello"')
+dst.records.all(filterByFormula='{title}="hello"')
 ```
 
 | 参数            | 类型           | 说明                                                                          | 例子                                  |
