@@ -69,7 +69,7 @@ def query_parse(field_key_map: FieldKeyMap, **kwargs):
 
 def handle_response(resp, resp_class: Generic[T]) -> T:
     if resp.status_code >= 500:
-        raise ServerError(f"API Server Error: {r.status_code}")
+        raise ServerError(f"API Server Error: {resp.status_code}")
     try:
         r = resp.json()
         if r["success"]:
