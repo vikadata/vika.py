@@ -60,6 +60,8 @@ def query_parse(field_key_map: FieldKeyMap, **kwargs):
         # 处理字符串
         if isinstance(v, str):
             v = f'"{v}"'
+        if isinstance(v, bool):
+            v = 'TRUE()' if v  else 'FALSE()'
         # 处理数组类型的值，多选，成员？
         if isinstance(v, list):
             v = f'"{", ".join(v)}"'
