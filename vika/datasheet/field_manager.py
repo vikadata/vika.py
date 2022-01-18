@@ -4,6 +4,7 @@ from vika.utils import trans_key
 
 
 class FieldManager:
+
     def __init__(self, dst: 'Datasheet'):
         self.dst = dst
         self._is_fetched = False

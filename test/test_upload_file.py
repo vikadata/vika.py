@@ -1,6 +1,7 @@
 import os
 import time
 import unittest
+import warnings
 
 from vika import Vika
 
@@ -8,7 +9,9 @@ from . import TEST_API_BASE, TEST_API_TOKEN, TEST_TABLE
 
 
 class TestUploadFile(unittest.TestCase):
+
     def setUp(self):
+        warnings.simplefilter('ignore', ResourceWarning)
         self.vika = Vika(TEST_API_TOKEN)
         self.vika.set_api_base(TEST_API_BASE)
         self.dst = self.vika.datasheet(TEST_TABLE)

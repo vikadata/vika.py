@@ -18,13 +18,15 @@ from vika.types.response import (
     DeleteRecordResponse,
     UploadFileResponse,
     RawRecord,
-    GETMetaViewResponse, GETRecordResponse,
+    GETMetaViewResponse,
+    GETRecordResponse,
 )
 from vika.utils import FieldKeyMap, handle_response, check_sort_params, trans_data, timed_lru_cache
 from vika.datasheet.view_manager import ViewManager
 
 
 class Datasheet:
+
     def __init__(self, vika: 'Vika', dst_id: str, **kwargs):
         self.vika = vika
         self.id = dst_id
@@ -43,7 +45,8 @@ class Datasheet:
 
     @property
     def _record_api_endpoint(self):
-        return urljoin(self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/records")
+        return urljoin(self.vika.api_base,
+                       f"/fusion/v1/datasheets/{self.id}/records")
 
     @property
     @timed_lru_cache(seconds=300)
@@ -71,9 +74,8 @@ class Datasheet:
             - viewId: 'viewId'
         @return:
         """
-        api_endpoint = urljoin(
-            self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/fields"
-        )
+        api_endpoint = urljoin(self.vika.api_base,
+                               f"/fusion/v1/datasheets/{self.id}/fields")
         resp = self.vika.request.get(api_endpoint, params=kwargs)
         return handle_response(resp, GETMetaFieldResponse)
 
@@ -81,9 +83,8 @@ class Datasheet:
         """
         获取 view meta
         """
-        api_endpoint = urljoin(
-            self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/views"
-        )
+        api_endpoint = urljoin(self.vika.api_base,
+                               f"/fusion/v1/datasheets/{self.id}/views")
         r = self.vika.request.get(api_endpoint).json()
         r = GETMetaViewResponse(**r)
         if r.success:
@@ -133,12 +134,17 @@ class Datasheet:
         """
         if type(data) is list:
             data = {
-                "records": [{"fields": trans_data(self.field_key_map, item)} for item in data],
-                "fieldKey": self.field_key,
+                "records": [{
+                    "fields": trans_data(self.field_key_map, item)
+                } for item in data],
+                "fieldKey":
+                self.field_key,
             }
         else:
             data = {
-                "records": [{"fields": trans_data(self.field_key_map, data)}],
+                "records": [{
+                    "fields": trans_data(self.field_key_map, data)
+                }],
                 "fieldKey": self.field_key,
             }
         resp = self.vika.request.post(self._record_api_endpoint, json=data)
@@ -154,7 +160,8 @@ class Datasheet:
         else:
             rec = rec_list
             ids = rec._id if type(rec) is Record else rec
-        resp = self.vika.request.delete(api_endpoint, params={"recordIds": ids})
+        resp = self.vika.request.delete(api_endpoint,
+                                        params={"recordIds": ids})
         r = handle_response(resp, DeleteRecordResponse)
         return r.success
 
@@ -166,7 +173,8 @@ class Datasheet:
             data = {"records": data, "fieldKey": self.field_key}
         else:
             data = {"records": [data], "fieldKey": self.field_key}
-        r = self.vika.request.patch(self._record_api_endpoint, json=data).json()
+        r = self.vika.request.patch(self._record_api_endpoint,
+                                    json=data).json()
         if r["success"]:
             r = PatchRecordResponse(**r)
             return r.data.records
@@ -182,9 +190,8 @@ class Datasheet:
         上传附件，支持本地或者网络文件路经。
         dst.upload_file("/path/to/your/file")
         """
-        api_endpoint = urljoin(
-            self.vika.api_base, f"/fusion/v1/datasheets/{self.id}/attachments"
-        )
+        api_endpoint = urljoin(self.vika.api_base,
+                               f"/fusion/v1/datasheets/{self.id}/attachments")
         is_web_file = type(file_url) is str and file_url.startswith("http")
 
         if is_web_file:
@@ -196,7 +203,9 @@ class Datasheet:
                 _file = ("image", io.BufferedReader(buf), file_mimetype)
                 r = self.vika.request.post(
                     api_endpoint,
-                    files={"files": _file},
+                    files={
+                        "files": _file
+                    },
                     stream=False,
                 ).json()
                 print(r)

@@ -8,6 +8,7 @@ from vika.utils import chunks, trans_key
 
 
 class QuerySet:
+
     def __init__(self, dst, records: List[RawRecord]):
         self._dst = dst
         self._records = records[:]
@@ -108,17 +109,17 @@ class QuerySet:
         #     if isinstance(filter_func_or_key, FunctionType):
         #         if kwargs:
         #             raise Exception("function filter can't be used with key-value filter")
-        kwargs = {trans_key(self._dst.field_key_map, k): v for k, v in kwargs.items()}
+        kwargs = {
+            trans_key(self._dst.field_key_map, k): v
+            for k, v in kwargs.items()
+        }
 
         def filter_record(record) -> bool:
-            return all(
-                [
-                    record.id == v
-                    if k in ["recordId", "_id"]
-                    else record.data.get(k) == v
-                    for k, v in kwargs.items()
-                ]
-            )
+            return all([
+                record.id == v
+                if k in ["recordId", "_id"] else record.data.get(k) == v
+                for k, v in kwargs.items()
+            ])
 
         found_records = list(filter(filter_record, self._records))
         return QuerySet(self._dst, found_records)

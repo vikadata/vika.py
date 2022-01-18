@@ -1,18 +1,21 @@
-from vika.const import MAX_WRITE_RECORDS_PRE_REQ, MAX_GET_RECORDS_PRE_REQ
-from vika.exceptions import RecordDoesNotExist
+from typing import List
+
+from vika.const import MAX_GET_RECORDS_PRE_REQ, MAX_WRITE_RECORDS_PRE_REQ
 from vika.datasheet.query_set import QuerySet
 from vika.datasheet.record import Record
+from vika.exceptions import RecordDoesNotExist
 from vika.types import GETRecordResponse
-from vika.utils import query_parse
+from vika.utils import query_parse, trans_data
 
 
 class RecordManager:
+
     def __init__(self, dst: 'Datasheet'):
         self._dst = dst
         self._fetched_with = None
         self._fetched_by = None
 
-    def bulk_create(self, data):
+    def bulk_create(self, data) -> List[Record]:
         """
         批量创建记录，每个请求只能创建 10 条记录 dst.records.bulk_create([{"标题": "hello vika"}])
         @param data: 记录对象列表 [{ "fieldKey": fieldValue }, { "fieldKey": fieldValue2 }]
@@ -23,7 +26,21 @@ class RecordManager:
         resp = self._dst.create_records(data)
         return [Record(self._dst, record) for record in resp.data.records]
 
-    def create(self, data):
+    def bulk_update(self, data) -> List[Record]:
+        """
+        批量更新记录，和原始的 API 请求一样
+        @param data: 记录对象列表 [{ "recordId": "recxxxx", "fields": {"fieldKey": fieldValue} }]
+        @return Boolean
+        """
+        if len(data) > MAX_WRITE_RECORDS_PRE_REQ:
+            raise Exception(f'单个请求更新记录数量不得大于 {MAX_WRITE_RECORDS_PRE_REQ} 条')
+        for record in data:
+            record['fields'] = trans_data(self._dst.field_key_map,
+                                          record['fields'])
+        updated_records = self._dst.update_records(data)
+        return [Record(self._dst, record) for record in updated_records]
+
+    def create(self, data) -> Record:
         """
         创建一条记录 dst.records.create({"标题": "hello vika"})
         @param data: dict {"fieldKey": fieldValue}
@@ -90,6 +107,49 @@ class RecordManager:
             return Record(self._dst, resp.data.records[0])
         raise RecordDoesNotExist()
 
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        按给定的 kwargs 条件查找单条记录，如果没有符合的记录，则创建记录。
+        eg: dst.records.get_or_create(defaults={"done":False}, task="今天早起") 如果找不到 「task 为「今天早起」的记录，则创建一条，且的「done」是「False」
+        @param defaults 字典（字段key,字段值），当记录不存在时，创建记录的默认值。
+        @param kwargs 查询条件
+        @return (record,created) 返回记录和是否是创建
+        """
+        created = False
+        record = None
+        data = {}
+        try:
+            record = self.get(**kwargs)
+        except RecordDoesNotExist:
+            created = True
+            if kwargs:
+                data.update(kwargs)
+            if defaults:
+                data.update(defaults)
+            record = self.create(data)
+        return (record, created)
+
+    def update_or_create(self, defaults=None, **kwargs):
+        """
+        按给定的 kwargs 条件查找单条记录，如果没有符合的记录，则创建记录。如果找到了，就以 defaults 中的值更记录。
+        @param defaults 字典（字段key,字段值），当记录不存在时，创建记录的默认值。
+        @param kwargs 查询条件
+        @return (record,created) 返回记录和是否是创建
+        """
+        created = False
+        record = None
+        data = {}
+        try:
+            record = self.get(**kwargs).update(defaults)
+        except RecordDoesNotExist:
+            created = True
+            if kwargs:
+                data.update(kwargs)
+            if defaults:
+                data.update(defaults)
+            record = self.create(data)
+        return (record, created)
+
     def filter(self, **kwargs):
         """
         通过查询条件，查询出符合条件的记录集
@@ -106,8 +166,12 @@ class RecordManager:
     def _query_records(self, **kwargs):
         # 将查询条件转化为 filterByFormula， 利用服务端计算查询记录集
         query_formula = query_parse(self._dst.field_key_map, **kwargs)
-        kwargs = {"filterByFormula": query_formula, "pageSize": MAX_GET_RECORDS_PRE_REQ}
+        kwargs = {
+            "filterByFormula": query_formula,
+            "pageSize": MAX_GET_RECORDS_PRE_REQ
+        }
         resp: GETRecordResponse = self._dst.get_records(**kwargs)
         if resp.data.pageNum * resp.data.pageSize < resp.data.total:
-            return resp.data.records + self._dst.get_records(pageNum=resp.data.pageNum + 1, **kwargs)
+            return resp.data.records + self._dst.get_records(
+                pageNum=resp.data.pageNum + 1, **kwargs)
         return resp.data.records

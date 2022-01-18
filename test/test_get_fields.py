@@ -1,11 +1,14 @@
 import unittest
+import warnings
 
 from vika import Vika
 from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN
 
 
 class TestGetFields(unittest.TestCase):
+
     def setUp(self):
+        warnings.simplefilter('ignore', ResourceWarning)
         vika = Vika(TEST_API_TOKEN)
         vika.set_api_base(TEST_API_BASE)
         self.dst = vika.datasheet(TEST_TABLE)

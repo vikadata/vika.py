@@ -4,6 +4,7 @@ from vika.utils import trans_key, trans_data
 
 
 class Record:
+
     def __init__(self, datasheet: 'Datasheet', record: RawRecord):
         self._datasheet = datasheet
         self._id = record.id
@@ -67,12 +68,19 @@ class Record:
         data = {"recordId": self._id, "fields": _data}
         return data
 
-    def update(self, data):
+    def update(self, data=None, **kwargs):
         """
-        更新多个字段
+        更新多个字段，支持两种写法。可以传单个 dict，也可以传入 **kwargs
+        @param data: dict 需要更新的键值对
+        @param kwargs: 需要更新的键值对
         """
         self._check_record_status()
+        update_data = {}
+        if data:
+            update_data.update(data)
+        if kwargs:
+            update_data.update(kwargs)
         # 更新单个记录的多个字段，只返回一条记录
-        data = self._make_update_body(data)
-        self._record = self._datasheet.update_records(data)[0]
+        update_data = self._make_update_body(update_data)
+        self._record = self._datasheet.update_records(update_data)[0]
         return self
