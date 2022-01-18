@@ -1,13 +1,10 @@
-import json
-
 from functools import lru_cache, wraps
-from time import monotonic
 from json import JSONDecodeError
-from typing import Dict, Any
-from typing import TypeVar, Generic
+from time import monotonic
+from typing import Any, Dict, Generic, TypeVar
 from urllib.parse import urlparse
-from vika.exceptions import ResponseBodyParserError, ServerError
 
+from vika.exceptions import ResponseBodyParserError, ServerError
 
 T = TypeVar('T')
 
@@ -61,7 +58,7 @@ def query_parse(field_key_map: FieldKeyMap, **kwargs):
         if isinstance(v, str):
             v = f'"{v}"'
         if isinstance(v, bool):
-            v = 'TRUE()' if v  else 'FALSE()'
+            v = 'TRUE()' if v else 'FALSE()'
         # 处理数组类型的值，多选，成员？
         if isinstance(v, list):
             v = f'"{", ".join(v)}"'
@@ -78,7 +75,7 @@ def handle_response(resp, resp_class: Generic[T]) -> T:
             try:
                 return resp_class(**r)
             except:
-                raise ResponseBodyParserError(f"Response Body Parser Error: {resp.text}")
+                raise ResponseBodyParserError(f"Response Body Parser Error: {resp.text}")
         raise Exception(r['message'])
     except JSONDecodeError:
         raise Exception(f"JSON Parser Error: {resp.text}")
