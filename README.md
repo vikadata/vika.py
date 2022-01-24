@@ -166,18 +166,18 @@ bug = vika.datasheet("dstn2lEFltyGHe2j86", field_key="id", field_key_map={
 
 #### QuerySet
 
-返回 QuerySet 的方法可以进行链式调用
+返回 QuerySet 的方法可以进行链式调用。例如 qs = dst.records.all() 返回了一批查询出来的数据集。
 
 | 方法   | 参数     | 返回类型 | 说明                   | 例子                                                              |
 | ------ | -------- | -------- | ---------------------- | ----------------------------------------------------------------- |
-| filter | \*\*dict | QuerySet | 过滤出一批记录         | `dst.records.filter(title="new title")`                           |
-| all    | /        | QuerySet | 返回当前记录集合的拷贝 | `dst.records.filter(title="new title").all()`                     |
-| get    | \*\*dict | Record   | 单条记录               | `dst.records.get(title="new title")`                              |
-| count  | /        | int      | 记录总数               | `dst.records.filter(title="new title").count()`                   |
-| last   | /        | Record   | 最后一条记录           | `dst.records.filter(title="new title").last()`                    |
-| first  | /        | Record   | 第一条记录             | `dst.records.filter(title="new title").first()`                   |
-| update | \*\*dict | Record   | 更新成功的记录数       | `dst.records.filter(title="new title").update(title="new title")` |
-| delete | /        | bool     | 是否删除成功           | `dst.records.filter(title="new title").delete()`                  |
+| filter | \*\*dict | QuerySet | 过滤出一批记录         | `qs.filter(title="new title")`                           |
+| all    | /        | QuerySet | 返回当前记录集合的拷贝 | `qs.filter(title="new title").all()`                     |
+| get    | \*\*dict | Record   | 单条记录               | `qs.get(title="new title")`                              |
+| count  | /        | int      | 记录总数               | `qs.filter(title="new title").count()`                   |
+| last   | /        | Record   | 最后一条记录           | `qs.filter(title="new title").last()`                    |
+| first  | /        | Record   | 第一条记录             | `qs.filter(title="new title").first()`                   |
+| update | \*\*dict | Record   | 更新成功的记录数       | `qs.filter(title="new title").update(title="new title")` |
+| delete | /        | bool     | 是否删除成功           | `qs.filter(title="new title").delete()`                  |
 
 #### Record
 
