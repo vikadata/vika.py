@@ -44,26 +44,28 @@ def trans_data(field_key_map: FieldKeyMap, data: Dict[str, Any]):
 def query_parse(field_key_map: FieldKeyMap, **kwargs):
     """
     将查询条件转化为 filterByFormula
-    records.filter(title="hello", subtitle="world") => '{title}="hello" AND {subtitle}="world"'
+    records.filter(title="hello", subtitle="world") => 'AND({subtitle}="world",{title}="hello")'
     1. 通过 filter 和 get 参数查询到的只能转化为 and 条件。
     """
-    query_str = ""
+    query_list = []
     for k, v in kwargs.items():
-        if query_str:
-            query_str += " AND "
         # 处理空值
         if v is None:
             v = 'BLANK()'
         # 处理字符串
-        if isinstance(v, str):
+        elif isinstance(v, str):
             v = f'"{v}"'
-        if isinstance(v, bool):
+        elif isinstance(v, bool):
             v = 'TRUE()' if v else 'FALSE()'
         # 处理数组类型的值，多选，成员？
-        if isinstance(v, list):
+        elif isinstance(v, list):
             v = f'"{", ".join(v)}"'
-        query_str += f'{{{trans_key(field_key_map, k)}}}={v}'
-    return query_str
+        query_list.append(f'{{{trans_key(field_key_map, k)}}}={v}')
+    if len(query_list) == 1:
+        return query_list[0]
+    else:
+        qs = ",".join(query_list)
+        return f"AND({qs})"
 
 
 def handle_response(resp, resp_class: Generic[T]) -> T:
