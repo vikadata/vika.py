@@ -182,12 +182,17 @@ class Datasheet:
             raise Exception(r["message"])
 
     def upload_attachment(self, file_url):
-        return self.upload_file(file_url)
-
-    # 废弃
-    def upload_file(self, file_url):
         """
         上传附件，支持本地或者网络文件路经。
+        attachment = dst.upload_attachment("/path/to/your/file")
+        record.附件 = [attachment]
+        """
+        return self.upload_file(file_url)
+
+    def upload_file(self, file_url):
+        """
+        @deprecated
+        上传附件，支持本地或者网络文件路经。（请使用 upload_attachment 代替，此方法可能会被废弃）
         dst.upload_file("/path/to/your/file")
         """
         api_endpoint = urljoin(self.vika.api_base,
@@ -203,15 +208,9 @@ class Datasheet:
                 _file = ("image", io.BufferedReader(buf), file_mimetype)
                 r = self.vika.request.post(
                     api_endpoint,
-                    files={
-                        "files": _file
-                    },
+                    files={"files": _file},
                     stream=False,
-                ).json()
-                print(r)
-                r = UploadFileResponse(**r)
-                if r.success:
-                    return r.data
+                )
         else:
             with open(file_url, "rb") as upload_file:
                 r = self.vika.request.post(
@@ -223,7 +222,7 @@ class Datasheet:
                             mimetypes.guess_type(file_url)[0],
                         )
                     },
-                ).json()
-                r = UploadFileResponse(**r)
-                if r.success:
-                    return r.data
+                )
+        up_file_resp = handle_response(r, UploadFileResponse)
+        if up_file_resp.success:
+            return up_file_resp.data
