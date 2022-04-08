@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="vika",
-    version="1.0.9",
+    version="1.0.10",
     author="vikadata",
     author_email="dev@vikadata.com",
     description="维格表官方 Python SDK",
