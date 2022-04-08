@@ -9,6 +9,7 @@ class NodeTypeEnum(str, Enum):
     Folder = 'Folder'
     Form = 'Form'
     Dashboard = 'Dashboard'
+    Mirror = 'Mirror'
 
 
 class NodeListItem(BaseModel):
