@@ -1,10 +1,3 @@
-class SpaceInfoLack(Exception):
-    """
-    缺少空间站信息
-    """
-    pass
-
-
 class DatasheetDoesNotExist(Exception):
     """
     数表不存在

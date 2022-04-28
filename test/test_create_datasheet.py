@@ -1,7 +1,7 @@
 import unittest
 import warnings
 from vika import Vika
-from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN, TEST_SPACE_ID
+from . import TEST_API_BASE, TEST_API_TOKEN, TEST_SPACE_ID
 
 
 class TestCreateFields(unittest.TestCase):
