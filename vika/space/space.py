@@ -35,13 +35,12 @@ class Space:
 
             :param dic data: api请求体，结构：{'name': 'table_name'}
             :return: 创建表格响应数据
-            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常
         """
         if self.id is None:
-            raise NameError('maybe: vika.datasheet("dst_id") => vika.space("spc_id").datasheet("dst_id")')
+            raise Exception('maybe: vika.datasheet("dst_id") => vika.space("spc_id").datasheet("dst_id")')
         api_endpoint = urljoin(self.vika.api_base,
                                f"/fusion/v1/spaces/{self.id}/datasheets")
         resp = self.vika.request.post(api_endpoint, json=data)
