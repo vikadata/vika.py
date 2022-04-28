@@ -13,7 +13,6 @@ class DatasheetManager:
 
             :param dict data:  新建表格属性
             :return: 新建表格id、创建时间戳和字段id、name信息
-            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常

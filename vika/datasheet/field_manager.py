@@ -84,7 +84,6 @@ class FieldManager:
 
             :param dict data:  新建字段属性
             :return: 新建字段id和name
-            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常，如：字段重名
@@ -105,7 +104,6 @@ class FieldManager:
 
             :param str fid_id: 要删除的字段信息
             :return: 删除成功返回ture
-            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常，如：字段id不存在
