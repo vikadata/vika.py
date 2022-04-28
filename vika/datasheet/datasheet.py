@@ -7,12 +7,13 @@ from urllib.parse import urljoin
 import requests
 
 from vika.const import API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
-from vika.exceptions import ErrorSortParams
+from vika.exceptions import ErrorSortParams, SpaceInfoLack
 from vika.datasheet.field_manager import FieldManager
 from vika.datasheet.record import Record
 from vika.datasheet.record_manager import RecordManager
 from vika.types.response import (
     GETMetaFieldResponse,
+    PostMetaFieldResponse,
     PatchRecordResponse,
     PostRecordResponse,
     DeleteRecordResponse,
@@ -20,6 +21,7 @@ from vika.types.response import (
     RawRecord,
     GETMetaViewResponse,
     GETRecordResponse,
+    DeleteFieldResponse,
 )
 from vika.utils import FieldKeyMap, handle_response, check_sort_params, trans_data, timed_lru_cache
 from vika.datasheet.view_manager import ViewManager
@@ -27,9 +29,10 @@ from vika.datasheet.view_manager import ViewManager
 
 class Datasheet:
 
-    def __init__(self, vika: 'Vika', dst_id: str, **kwargs):
+    def __init__(self, vika: 'Vika', dst_id: str, spc_id=None, **kwargs):
         self.vika = vika
         self.id = dst_id
+        self.spc_id = spc_id
         field_key = kwargs.get("field_key", "name")
         if field_key not in ["name", "id"]:
             raise Exception("Error field_key, plz use「name」 or 「id」")
@@ -78,6 +81,41 @@ class Datasheet:
                                f"/fusion/v1/datasheets/{self.id}/fields")
         resp = self.vika.request.get(api_endpoint, params=kwargs)
         return handle_response(resp, GETMetaFieldResponse)
+
+    def create_field(self, data) -> PostMetaFieldResponse:
+        """ 字段创建
+
+            :param dic data: api请求体，结构：{'type': str, 'name': str, 'property': obj}
+            :return: 字段创建api返回结果
+            :raises SpaceInfoLack: 缺少空间站信息
+            :raises ServerError: 服务端错误
+            :raises ResponseBodyParserError: 解析响应体失败
+            :raises Exception: 其他异常，如：字段重名
+        """
+        if self.spc_id is None:
+            raise SpaceInfoLack("缺少空间信息")
+        api_endpoint = urljoin(self.vika.api_base,
+                               f"/fusion/v1/spaces/{self.spc_id}/datasheets/{self.id}/fields")
+        resp = self.vika.request.post(api_endpoint, json=data)
+        return handle_response(resp, PostMetaFieldResponse)
+
+    def delete_field(self, field_id: str) -> bool:
+        """ 字段删除
+
+            :param str field_id: 字段id
+            :return: 字段是否删除成功
+            :raises SpaceInfoLack: 缺少空间站信息
+            :raises ServerError: 服务端错误
+            :raises ResponseBodyParserError: 解析响应体失败
+            :raises Exception: 其他异常，如：
+        """
+        if self.spc_id is None:
+            raise SpaceInfoLack("缺少空间信息")
+        api_endpoint = urljoin(self.vika.api_base,
+                               f"/fusion/v1/spaces/{self.spc_id}/datasheets/{self.id}/fields/{field_id}")
+        resp = self.vika.request.delete(api_endpoint)
+        r = handle_response(resp, DeleteFieldResponse)
+        return r.success
 
     def get_views(self):
         """
