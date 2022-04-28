@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 import requests
 
 from vika.const import API_GET_DATASHEET_QS_SET, DEFAULT_PAGE_SIZE
-from vika.exceptions import ErrorSortParams, SpaceInfoLack
+from vika.exceptions import ErrorSortParams
 from vika.datasheet.field_manager import FieldManager
 from vika.datasheet.record import Record
 from vika.datasheet.record_manager import RecordManager
@@ -87,13 +87,13 @@ class Datasheet:
 
             :param dic data: api请求体，结构：{'type': str, 'name': str, 'property': obj}
             :return: 字段创建api返回结果
-            :raises SpaceInfoLack: 缺少空间站信息
+            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常，如：字段重名
         """
         if self.spc_id is None:
-            raise SpaceInfoLack("缺少空间信息")
+            raise NameError('maybe: vika.datasheet("dst_id") => vika.space("spc_id").datasheet("dst_id")')
         api_endpoint = urljoin(self.vika.api_base,
                                f"/fusion/v1/spaces/{self.spc_id}/datasheets/{self.id}/fields")
         resp = self.vika.request.post(api_endpoint, json=data)
@@ -104,13 +104,13 @@ class Datasheet:
 
             :param str field_id: 字段id
             :return: 字段是否删除成功
-            :raises SpaceInfoLack: 缺少空间站信息
+            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常，如：
         """
         if self.spc_id is None:
-            raise SpaceInfoLack("缺少空间信息")
+            raise NameError('maybe: vika.datasheet("dst_id") => vika.space("spc_id").datasheet("dst_id")')
         api_endpoint = urljoin(self.vika.api_base,
                                f"/fusion/v1/spaces/{self.spc_id}/datasheets/{self.id}/fields/{field_id}")
         resp = self.vika.request.delete(api_endpoint)

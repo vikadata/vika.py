@@ -3,7 +3,6 @@ from vika.utils import get_dst_id, handle_response
 from vika.datasheet import Datasheet, DatasheetManager
 from vika.types.response import PostDatasheetMetaResponse
 from urllib.parse import urljoin
-from vika.exceptions import SpaceInfoLack
 
 
 class Space:
@@ -36,13 +35,13 @@ class Space:
 
             :param dic data: api请求体，结构：{'name': 'table_name'}
             :return: 创建表格响应数据
-            :raises SpaceInfoLack: 缺少空间站信息
+            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常
         """
         if self.id is None:
-            raise SpaceInfoLack("缺少空间信息")
+            raise NameError('maybe: vika.datasheet("dst_id") => vika.space("spc_id").datasheet("dst_id")')
         api_endpoint = urljoin(self.vika.api_base,
                                f"/fusion/v1/spaces/{self.id}/datasheets")
         resp = self.vika.request.post(api_endpoint, json=data)

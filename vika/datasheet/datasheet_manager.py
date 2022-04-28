@@ -13,7 +13,7 @@ class DatasheetManager:
 
             :param dict data:  新建表格属性
             :return: 新建表格id、创建时间戳和字段id、name信息
-            :raises SpaceInfoLack: 缺少空间站信息
+            :raises NameError: 缺少空间id信息
             :raises ServerError: 服务端错误
             :raises ResponseBodyParserError: 解析响应体失败
             :raises Exception: 其他异常
@@ -21,7 +21,7 @@ class DatasheetManager:
             :example:
             >>> vika = Vika('YOUR_API_TOKEN')
             >>> req_data = {'name': 'table_name'}
-            >>> rep = vika.space('YOUR_SPACE_ID').datasheet.create(req_data)
+            >>> rep = vika.space('YOUR_SPACE_ID').datasheets.create(req_data)
         """
         resp = self.spc.create_datasheet(data)
         return resp.data
