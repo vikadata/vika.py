@@ -88,6 +88,28 @@ class GETMetaFieldResponse(ResponseBase):
     data: GETMetaFieldResponseData
 
 
+class PostMetaFieldResponseData(BaseModel):
+    """ 创建字段后的返回数据结构
+
+    """
+    id: str
+    name: str
+
+
+class PostMetaFieldResponse(ResponseBase):
+    """ 创建字段后的返回数据
+
+    """
+    data: PostMetaFieldResponseData
+
+
+class DeleteFieldResponse(ResponseBase):
+    """
+    删除字段返回结果
+    """
+    pass
+
+
 # meta view
 class GETMetaViewResponseData(BaseModel):
     views: List[MetaView]
@@ -129,3 +151,26 @@ class GETNodeDetailResponse(ResponseBase):
     获取「文件详情」返回的数据
     """
     data: NodeDetail
+
+
+class PostDatasheetMetaResponseData(BaseModel):
+    """创建表格响应数据结构
+
+    """
+    id: str
+    createdAt: int
+    items: List[PostMetaFieldResponseData]
+
+    class Config:
+        # https://github.com/samuelcolvin/pydantic/issues/1250
+        fields = {
+            "items": "fields",  # 服务端返回的数据为 fields，此字段为 pydantic 保留字段。
+        }
+
+
+class PostDatasheetMetaResponse(ResponseBase):
+    """创建表格响应数据
+
+    """
+    data: PostDatasheetMetaResponseData
+

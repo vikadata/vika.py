@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from vika.types.field import MetaField
 from vika.utils import trans_key
 
@@ -78,6 +78,47 @@ class FieldManager:
             return self._meta_field_name_map.get(field_key, None)
         # 找不到字段
         return None
+
+    def create(self, data) -> Optional[MetaField]:
+        """ 字段创建 https://vika.cn/developers/api/reference/#operation/create-fields
+
+            :param dict data:  新建字段属性
+            :return: 新建字段id和name
+            :raises SpaceInfoLack: 缺少空间站信息
+            :raises ServerError: 服务端错误
+            :raises ResponseBodyParserError: 解析响应体失败
+            :raises Exception: 其他异常，如：字段重名
+
+            :example:
+            >>> vika = Vika('YOUR_API_TOKEN')
+            >>> req_data = {'type': 'SingleText', 'name': '标题', 'property': {'defaultValue': '默认文本'}}
+            >>> rep = vika.space('YOUR_SPACE_ID').datasheet('YOUR_TABLE').fields.create(req_data)
+            >>> rep
+            code=200 success=True message='SUCCESS' data=PostMetaFieldResponseData(id='fldXXXXXXXXXX', name='标题')
+        """
+        resp = self.dst.create_field(data)
+        self.refresh()
+        return resp.data
+
+    def delete(self, fid_id: str) -> bool:
+        """ 字段删除 https://vika.cn/developers/api/reference/#operation/delete-fields
+
+            :param str fid_id: 要删除的字段信息
+            :return: 删除成功返回ture
+            :raises SpaceInfoLack: 缺少空间站信息
+            :raises ServerError: 服务端错误
+            :raises ResponseBodyParserError: 解析响应体失败
+            :raises Exception: 其他异常，如：字段id不存在
+
+            :example:
+            >>> vika = Vika('YOUR_API_TOKEN')
+            >>> is_true = vika.space('YOUR_SPACE_ID').datasheet('YOUR_TABLE').fields.delete('fid_id')
+            >>> is_true
+            True
+        """
+        is_success = self.dst.delete_field(fid_id)
+        self.refresh()
+        return is_success
 
     def __getitem__(self, index):
         self._check_meta()
