@@ -91,9 +91,7 @@ class FieldManager:
             :example:
             >>> vika = Vika('YOUR_API_TOKEN')
             >>> req_data = {'type': 'SingleText', 'name': '标题', 'property': {'defaultValue': '默认文本'}}
-            >>> rep = vika.space('YOUR_SPACE_ID').datasheet('YOUR_TABLE').fields.create(req_data)
-            >>> rep
-            code=200 success=True message='SUCCESS' data=PostMetaFieldResponseData(id='fldXXXXXXXXXX', name='标题')
+            >>> fld_meta = vika.space('YOUR_SPACE_ID').datasheet('YOUR_TABLE').fields.create(req_data)
         """
         resp = self.dst.create_field(data)
         self.refresh()
