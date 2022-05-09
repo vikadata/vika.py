@@ -20,7 +20,7 @@ class DatasheetManager:
             :example:
             >>> vika = Vika('YOUR_API_TOKEN')
             >>> req_data = {'name': 'table_name'}
-            >>> rep = vika.space('YOUR_SPACE_ID').datasheets.create(req_data)
+             >>> dst_meta = vika.space('YOUR_SPACE_ID').datasheets.create(req_data)
         """
         resp = self.spc.create_datasheet(data)
         return resp.data
