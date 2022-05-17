@@ -170,8 +170,4 @@ class RecordManager:
             "filterByFormula": query_formula,
             "pageSize": MAX_GET_RECORDS_PRE_REQ
         }
-        resp: GETRecordResponse = self._dst.get_records(**kwargs)
-        if resp.data.pageNum * resp.data.pageSize < resp.data.total:
-            return resp.data.records + self._dst.get_records(
-                pageNum=resp.data.pageNum + 1, **kwargs)
-        return resp.data.records
+        return self._dst.get_records_all(**kwargs)
