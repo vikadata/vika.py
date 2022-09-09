@@ -3,9 +3,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open(".version", "r") as fh:
+    version_number = fh.read()
+
 setuptools.setup(
     name="vika",
-    version="1.1.1",
+    version=version_number,
     author="vikadata",
     author_email="dev@vikadata.com",
     description="维格表官方 Python SDK",
