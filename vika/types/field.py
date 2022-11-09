@@ -124,6 +124,8 @@ class LastModifiedTimeFieldProperty(DateTimeFieldProperty):
 class MagicLinkFieldProperty(BaseModel):
     foreignDatasheetId: str
     brotherFieldId: Optional[str] = ""  # 字表关联没有兄弟字段
+    limitToViewId: Optional[str]
+    limitSingleRecord: bool
 
 
 class FieldPropertyWithDstId(BaseModel):
