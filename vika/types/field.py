@@ -125,7 +125,7 @@ class MagicLinkFieldProperty(BaseModel):
     foreignDatasheetId: str
     brotherFieldId: Optional[str] = ""  # 字表关联没有兄弟字段
     limitToViewId: Optional[str]
-    limitSingleRecord: bool
+    limitSingleRecord: Optional[bool]
 
 
 class FieldPropertyWithDstId(BaseModel):
