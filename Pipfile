@@ -12,6 +12,7 @@ autopep8 = "*"
 requests = "==2.27.1"
 pydantic = "==1.6.2"
 environs = "==8.0.0"
+apitable = ">=1.0.0"
 
 [requires]
 python_version = "3.6"
