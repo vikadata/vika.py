@@ -7,14 +7,14 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2
       - run: |
           # Hack to get setup-python to work on act
           if [ ! -f "/etc/lsb-release" ] ; then
-            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+            echo "DISTRIB_RELEASE=20.04" > /etc/lsb-release
           fi
       - name: Set up Python
         uses: actions/setup-python@v2
