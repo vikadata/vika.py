@@ -1,1 +1,1 @@
-from apitable.node_manager import *
+from .node_manager import *

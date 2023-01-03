@@ -1,7 +1,6 @@
 {
   "cSpell.words": [
-    "vika",
-    "vikaji"
+    "apitable"
   ],
   "python.languageServer": "Pylance",
   "python.formatting.provider": "black",
