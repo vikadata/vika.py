@@ -1,6 +1,6 @@
 import unittest
 
-from apitable.utils import query_parse
+from vika.utils import query_parse
 
 
 class TestUtils(unittest.TestCase):
