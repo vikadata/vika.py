@@ -1,6 +1,6 @@
-from apitable.exceptions import RecordWasDeleted, ErrorFieldKey
-from apitable.types import RawRecord
-from apitable.utils import trans_key, trans_data
+from vika.exceptions import RecordWasDeleted, ErrorFieldKey
+from vika.types import RawRecord
+from vika.utils import trans_key, trans_data
 
 
 class Record:

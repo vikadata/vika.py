@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
-from apitable.types.field import MetaField
-from apitable.utils import trans_key
+from vika.types.field import MetaField
+from vika.utils import trans_key
 
 
 class FieldManager:

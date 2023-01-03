@@ -1,10 +1,10 @@
 from typing import List
 
-from apitable.const import MAX_WRITE_RECORDS_PRE_REQ
-from apitable.datasheet.record import Record
-from apitable.exceptions import RecordDoesNotExist
-from apitable.types import RawRecord
-from apitable.utils import chunks, trans_key
+from vika.const import MAX_WRITE_RECORDS_PRE_REQ
+from vika.datasheet.record import Record
+from vika.exceptions import RecordDoesNotExist
+from vika.types import RawRecord
+from vika.utils import chunks, trans_key
 
 
 class QuerySet:

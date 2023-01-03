@@ -1,10 +1,10 @@
 from urllib.parse import urljoin
 
-from apitable.types.response import (
+from vika.types.response import (
     GETNodeListResponse,
     GETNodeDetailResponse
 )
-from apitable.utils import handle_response
+from vika.utils import handle_response
 
 
 class NodeManager:

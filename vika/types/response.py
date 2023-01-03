@@ -1,11 +1,11 @@
 from typing import Dict, Any, List, Optional
 
-from apitable.types.embedlink import EmbedLinkThemeEnum, EmbedLinkPayload
-from apitable.types.node import NodeListItem, NodeDetail
-from apitable.types.space import SpaceListItem
-from apitable.types.record import RawRecord
-from apitable.types.view import MetaView
-from apitable.types.field import MetaField
+from vika.types.embedlink import EmbedLinkThemeEnum, EmbedLinkPayload
+from vika.types.node import NodeListItem, NodeDetail
+from vika.types.space import SpaceListItem
+from vika.types.record import RawRecord
+from vika.types.view import MetaView
+from vika.types.field import MetaField
 from pydantic import BaseModel
 
 

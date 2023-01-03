@@ -1,11 +1,11 @@
 from typing import List
 
-from apitable.const import MAX_GET_RECORDS_PRE_REQ, MAX_WRITE_RECORDS_PRE_REQ
-from apitable.datasheet.query_set import QuerySet
-from apitable.datasheet.record import Record
-from apitable.exceptions import RecordDoesNotExist
-from apitable.types import GETRecordResponse
-from apitable.utils import query_parse, trans_data
+from vika.const import MAX_GET_RECORDS_PRE_REQ, MAX_WRITE_RECORDS_PRE_REQ
+from vika.datasheet.query_set import QuerySet
+from vika.datasheet.record import Record
+from vika.exceptions import RecordDoesNotExist
+from vika.types import GETRecordResponse
+from vika.utils import query_parse, trans_data
 
 
 class RecordManager:

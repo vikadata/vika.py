@@ -1,7 +1,7 @@
-from apitable.node import NodeManager
-from apitable.utils import get_dst_id, handle_response
-from apitable.datasheet import Datasheet, DatasheetManager
-from apitable.types.response import PostDatasheetMetaResponse
+from vika.node import NodeManager
+from vika.utils import get_dst_id, handle_response
+from vika.datasheet import Datasheet, DatasheetManager
+from vika.types.response import PostDatasheetMetaResponse
 from urllib.parse import urljoin
 
 

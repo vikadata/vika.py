@@ -4,7 +4,7 @@ from time import monotonic
 from typing import Any, Dict, Generic, TypeVar
 from urllib.parse import urlparse
 
-from apitable.exceptions import ResponseBodyParserError, ServerError
+from vika.exceptions import ResponseBodyParserError, ServerError
 
 T = TypeVar('T')
 
