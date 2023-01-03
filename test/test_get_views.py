@@ -2,24 +2,23 @@ import unittest
 import warnings
 
 from vika import Vika
-from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN
+from . import TOKEN, DOMAIN, SPACE_ID, DATASHEET_ID
 
 
 class TestGetViews(unittest.TestCase):
-
     def setUp(self):
-        warnings.simplefilter('ignore', ResourceWarning)
-        vika = Vika(TEST_API_TOKEN)
-        vika.set_api_base(TEST_API_BASE)
-        self.dst = vika.datasheet(TEST_TABLE)
+        warnings.simplefilter("ignore", ResourceWarning)
+        apitable = Vika(TOKEN)
+        apitable.set_api_base(DOMAIN)
+        self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID)
 
     def test_views_all(self):
         views = self.dst.views.all()
         self.assertIsInstance(views, list)
         first_view = views[0]
-        self.assertEqual(first_view.name, '维格视图')
-        self.assertEqual(first_view.type, 'Grid')
+        self.assertEqual(first_view.name, "Grid View")
+        self.assertEqual(first_view.type, "Grid")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

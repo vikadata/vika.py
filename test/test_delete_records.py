@@ -4,19 +4,20 @@ import warnings
 
 from vika import Vika
 
-from . import TEST_API_BASE, TEST_API_TOKEN, TEST_TABLE
+from . import TOKEN, DOMAIN, SPACE_ID, DATASHEET_ID
 
 
 class TestDeleteRecords(unittest.TestCase):
-
     def setUp(self):
-        warnings.simplefilter('ignore', ResourceWarning)
-        vika = Vika(TEST_API_TOKEN)
-        vika.set_api_base(TEST_API_BASE)
-        self.dst = vika.datasheet(TEST_TABLE)
+        warnings.simplefilter("ignore", ResourceWarning)
+        apitable = Vika(TOKEN)
+        apitable.set_api_base(DOMAIN)
+        self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID)
 
     def test_record_delete(self):
-        record = self.dst.records.get(title="无人生还")
+        self.dst.records.create({"title": "apitable"})
+        time.sleep(1)
+        record = self.dst.records.get(title="apitable")
         time.sleep(1 / 5)
         r = record.delete()
         self.assertTrue(r)
@@ -29,7 +30,7 @@ class TestDeleteRecords(unittest.TestCase):
 
     def tearDown(self):
         time.sleep(1)
-        self.dst.records.create({"title": "无人生还"})
+        self.dst.records.create({"title": "apitable"})
 
 
 if __name__ == "__main__":

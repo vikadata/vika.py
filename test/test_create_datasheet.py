@@ -1,37 +1,30 @@
 import unittest
 import warnings
 from vika import Vika
-from . import TEST_API_BASE, TEST_API_TOKEN, TEST_SPACE_ID
+from . import DOMAIN, TOKEN, SPACE_ID, FOLDER_ID
 
 
 class TestCreateFields(unittest.TestCase):
-    """VIKA Python SDK 创建表格测试类
-        - 表格创建SDK测试
+    """Apitable Python SDK create datasheet test class
+    - Datasheet Creation SDK Test
     """
 
     def setUp(self):
-        """创建表格测试类 对象初始hook：
-
-        """
-        warnings.simplefilter('ignore', ResourceWarning)
-        vika = Vika(TEST_API_TOKEN)
-        vika.set_api_base(TEST_API_BASE)
-        self.spc = vika.space(TEST_SPACE_ID)
+        """Create a datasheet test class object initial hook:"""
+        warnings.simplefilter("ignore", ResourceWarning)
+        apitable = Vika(TOKEN)
+        apitable.set_api_base(DOMAIN)
+        self.spc = apitable.space(SPACE_ID)
 
     def test_datasheet_create(self):
-        """表格创建SDK测试
-
-        """
-        req_data = {'name': 'table_name'}
+        """Datasheet Creation SDK Test"""
+        req_data = {"name": "python_test_datasheet_create", "folderId": FOLDER_ID}
         self.datasheet = self.spc.datasheets.create(req_data)
         self.assertIsNotNone(self.datasheet.id)
 
     def tearDown(self):
-        """创建表格测试类 对象销毁hook：
-
-        """
+        """Create a Datasheet test class object destroy hook:"""
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-

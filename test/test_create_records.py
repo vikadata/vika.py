@@ -2,27 +2,24 @@ import unittest
 import time
 import warnings
 from vika import Vika
-from . import TEST_TABLE, TEST_API_BASE, TEST_API_TOKEN
+from . import TOKEN, DOMAIN, SPACE_ID, DATASHEET_ID
 
 
 class TestCreateRecords(unittest.TestCase):
-
     def setUp(self):
-        warnings.simplefilter('ignore', ResourceWarning)
-        vika = Vika(TEST_API_TOKEN)
-        vika.set_api_base(TEST_API_BASE)
-        self.dst = vika.datasheet(TEST_TABLE)
+        warnings.simplefilter("ignore", ResourceWarning)
+        apitable = Vika(TOKEN)
+        apitable.set_api_base(DOMAIN)
+        self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID)
 
     def test_record_create(self):
         time.sleep(1)
-        record = self.dst.records.create({"title": "高等数学"})
+        record = self.dst.records.create({"title": "Advanced Mathematics"})
         time.sleep(1)
         self.assertIsNotNone(record._id)
-        records = self.dst.records.bulk_create([{
-            "title": "离散数学"
-        }, {
-            "title": "线性代数"
-        }])
+        records = self.dst.records.bulk_create(
+            [{"title": "Discrete Mathematics"}, {"title": "Linear Algebra"}]
+        )
         self.created_records = records + [record]
         for rec in records:
             self.assertIsNotNone(rec._id)
@@ -31,5 +28,5 @@ class TestCreateRecords(unittest.TestCase):
         self.dst.delete_records(self.created_records)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
