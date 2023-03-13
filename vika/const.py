@@ -1,8 +1,13 @@
+import os
+
+try:
+    MAX_WRITE_RECORDS_PRE_REQ = int(os.environ['APITABLE_MAX_WRITE_RECORDS_PRE_REQ'])
+except KeyError:
+    MAX_WRITE_RECORDS_PRE_REQ = 10
+
 API_BASE = "https://vika.cn"
 
 API_ENDPOINT_DATASHEET = "/fusion/v1/datasheets"
-
-MAX_WRITE_RECORDS_PRE_REQ = 10
 
 MAX_GET_RECORDS_PRE_REQ = 1000
 
