@@ -4,7 +4,7 @@ from vika import Vika
 from . import DOMAIN, TOKEN, SPACE_ID, FOLDER_ID
 
 
-class TestCreateFields(unittest.TestCase):
+class TestCreateDatasheet(unittest.TestCase):
     """Apitable Python SDK create datasheet test class
     - Datasheet Creation SDK Test
     """
