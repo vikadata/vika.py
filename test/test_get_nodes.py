@@ -17,7 +17,7 @@ class TestGetNodes(unittest.TestCase):
         space_root_nodes = self.apitable.space(SPACE_ID).nodes.all()
         self.assertIsInstance(space_root_nodes, list)
         first_node = space_root_nodes[0]
-        self.assertIn(first_node.type, ["Datasheet", "Folder"])
+        self.assertIn(first_node.type, ["Datasheet", "Folder", "Mirror"])
 
     def test_get_node_detail(self):
         node = self.apitable.nodes.get(FOLDER_ID)
