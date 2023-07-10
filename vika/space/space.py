@@ -1,8 +1,10 @@
-from vika.node import NodeManager
-from vika.utils import get_dst_id, handle_response
-from vika.datasheet import Datasheet, DatasheetManager
-from vika.types.response import PostDatasheetMetaResponse
 from urllib.parse import urljoin
+
+from vika.datasheet import Datasheet, DatasheetManager
+from vika.node import NodeManager
+from vika.types.response import PostDatasheetMetaResponse
+from vika.unit import Member, Role, Team
+from vika.utils import get_dst_id, handle_response
 
 
 class Space:
@@ -17,6 +19,27 @@ class Space:
     @property
     def datasheets(self):
         return DatasheetManager(self)
+
+    @property
+    def member(self):
+        """
+        Space member.
+        """
+        return Member(self)
+
+    @property
+    def role(self):
+        """
+        Space role.
+        """
+        return Role(self)
+
+    @property
+    def team(self):
+        """
+        Space team.
+        """
+        return Team(self)
 
     def datasheet(self, dst_id_or_url, **kwargs):
         """
