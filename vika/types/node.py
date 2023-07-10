@@ -23,3 +23,7 @@ class NodeListItem(BaseModel):
 class NodeDetail(NodeListItem):
     type = NodeTypeEnum.Folder
     children: Optional[List[NodeListItem]]
+
+class NodeSearchInfo(NodeListItem):
+    permission: int
+    parentId: Optional[str]

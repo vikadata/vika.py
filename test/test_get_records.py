@@ -2,7 +2,7 @@ import unittest
 import warnings
 
 from vika import Vika
-from . import TOKEN, DOMAIN, SPACE_ID, DATASHEET_ID, VIEW_ID
+from . import TOKEN, DOMAIN, SPACE_ID, DATASHEET_ID_FOR_GET, VIEW_ID
 
 
 class TestGetRecords(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestGetRecords(unittest.TestCase):
         warnings.simplefilter("ignore", ResourceWarning)
         apitable = Vika(TOKEN)
         apitable.set_api_base(DOMAIN)
-        self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID)
+        self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID_FOR_GET)
 
     def test_record_count(self):
         self.assertEqual(self.dst.records.all().count(), 1)

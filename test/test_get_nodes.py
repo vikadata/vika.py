@@ -24,6 +24,9 @@ class TestGetNodes(unittest.TestCase):
         self.assertEqual(node.id, FOLDER_ID)
         self.assertIsNotNone(node.children)
 
+    def test_search_nodes(self):
+        nodes = self.apitable.nodes.search(spaceId=SPACE_ID, type='Folder')
+        self.assertIsInstance(nodes, list)
 
 if __name__ == "__main__":
     unittest.main()

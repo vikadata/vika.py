@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 
 from vika.types.embedlink import EmbedLinkThemeEnum, EmbedLinkPayload
-from vika.types.node import NodeListItem, NodeDetail
+from vika.types.node import NodeListItem, NodeDetail, NodeSearchInfo
 from vika.types.space import SpaceListItem
 from vika.types.record import RawRecord
 from vika.types.view import MetaView
@@ -109,6 +109,12 @@ class GETNodeListResponseData(BaseModel):
 
 class GETNodeListResponse(ResponseBase):
     data: GETNodeListResponseData
+
+class GETSearchNodeListResponseData(BaseModel):
+    nodes: List[NodeSearchInfo]
+
+class GETSearchNodeListResponse(ResponseBase):
+    data: GETSearchNodeListResponseData
 
 
 class GETNodeDetailResponse(ResponseBase):

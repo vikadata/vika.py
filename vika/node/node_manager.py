@@ -2,7 +2,8 @@ from urllib.parse import urljoin
 
 from vika.types.response import (
     GETNodeListResponse,
-    GETNodeDetailResponse
+    GETNodeDetailResponse,
+    GETSearchNodeListResponse
 )
 from vika.utils import handle_response
 
@@ -26,6 +27,18 @@ class NodeManager:
             urljoin(self.apitable.api_base, f"/fusion/v1/nodes/{node_id}")
         )
         return handle_response(node_detail_resp, GETNodeDetailResponse)
+
+    def _search_nodes(self, space_id: str, **kwargs) -> GETSearchNodeListResponse:
+        search_node_list_resp = self.apitable.request.get(
+            urljoin(self.apitable.api_base, f"/fusion/v2/spaces/{space_id}/nodes"),
+            params=kwargs
+        )
+        return handle_response(search_node_list_resp, GETSearchNodeListResponse)
+    
+    def search(self, **kwargs):
+        space_id = kwargs.get('spaceId', self.space_id)
+        nodes_resp = self._search_nodes(space_id, **kwargs)
+        return nodes_resp.data.nodes
 
     def all(self, **kwargs):
         """
