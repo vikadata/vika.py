@@ -26,6 +26,7 @@ jobs:
           DOMAIN: ${{secrets.DOMAIN}}
           TOKEN: ${{secrets.TOKEN}}
           DATASHEET_ID: ${{secrets.PYTHON_DATASHEET_ID}}
+          DATASHEET_ID_FOR_GET: ${{PYTHON_DATASHEET_ID_FOR_GET}}
           VIEW_ID: ${{secrets.PYTHON_VIEW_ID}}
           SPACE_ID: ${{secrets.SPACE_ID}}
           FOLDER_ID: ${{secrets.FOLDER_ID}}
