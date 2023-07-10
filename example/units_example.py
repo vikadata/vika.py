@@ -1,7 +1,8 @@
 import os
 
 from apitable import Apitable
-from apitable.types.unit import RawRole, PaginationRole, ModifyRoleRequest, RawMember, ModifyMemberRequest, RawTeam, \
+from apitable.types.unit_model import RawRole, PaginationRole, ModifyRoleRequest, RawMember, ModifyMemberRequest, \
+    RawTeam, \
     CreateTeamRequest, ModifyTeamRequest, PaginationTeam, PaginationMember
 
 

@@ -1,7 +1,7 @@
 """
 Unit of team instance.
 """
-from vika.types.unit import CreateTeamRequest, RawTeam, ModifyTeamRequest, PaginationTeam, PaginationMember
+from vika.types.unit_model import CreateTeamRequest, RawTeam, ModifyTeamRequest, PaginationTeam, PaginationMember
 from vika.unit import Unit
 
 

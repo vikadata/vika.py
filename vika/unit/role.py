@@ -1,7 +1,7 @@
 """
 Unit of role instance.
 """
-from vika.types.unit import ModifyRoleRequest, RawRole, PaginationRole, CreateRoleRequest, RoleUnit
+from vika.types.unit_model import ModifyRoleRequest, RawRole, PaginationRole, CreateRoleRequest, RoleUnit
 from vika.unit import Unit
 
 

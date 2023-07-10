@@ -2,7 +2,7 @@
 Unit type
 """
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -19,7 +19,7 @@ class RawRole(RawUnit):
 class RawTeam(RawUnit):
     sequence: int
     parentUnitId: str
-    roles: list[RawRole]
+    roles: List[RawRole]
 
 
 class Mobile(BaseModel):
@@ -45,14 +45,14 @@ class RawMember(RawUnit):
     mobile: Mobile = Optional[Mobile]
     status: int
     type: MemberTypeEnum
-    teams: list[RawTeam]
-    roles: list[RawRole]
+    teams: List[RawTeam]
+    roles: List[RawRole]
 
 
 class ModifyMemberRequest(BaseModel):
     name: Optional[str]
-    teams: Optional[list[RawTeam]]
-    roles: Optional[list[RawRole]]
+    teams: Optional[List[str]]
+    roles: Optional[List[str]]
 
 
 class CreateRoleRequest(BaseModel):
@@ -70,19 +70,19 @@ class CreateTeamRequest(BaseModel):
     sequence: Optional[int]
     # default "0" means root team
     parentUnitId: Optional[str]
-    roles: Optional[list[str]]
+    roles: Optional[List[str]]
 
 
 class ModifyTeamRequest(BaseModel):
     name: Optional[str]
     sequence: Optional[int]
     parentUnitId: Optional[str]
-    roles: Optional[list[str]]
+    roles: Optional[List[str]]
 
 
 class RoleUnit(BaseModel):
-    teams: list[RawTeam]
-    members: list[RawMember]
+    teams: List[RawTeam]
+    members: List[RawMember]
 
 
 class PaginationUnit(BaseModel):
@@ -92,12 +92,12 @@ class PaginationUnit(BaseModel):
 
 
 class PaginationRole(PaginationUnit):
-    roles: list[RawRole]
+    roles: List[RawRole]
 
 
 class PaginationTeam(PaginationUnit):
-    teams: list[RawTeam]
+    teams: List[RawTeam]
 
 
 class PaginationMember(PaginationUnit):
-    members: list[RawMember]
+    members: List[RawMember]
