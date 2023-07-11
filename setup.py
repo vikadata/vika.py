@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/vikadata/vika.py",
     packages=[
-        "vika", "vika.datasheet", "vika.types", "vika.node", "vika.space"
+        "vika", "vika.datasheet", "vika.types", "vika.node", "vika.space", "vika.unit"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
