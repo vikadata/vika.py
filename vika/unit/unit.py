@@ -16,7 +16,6 @@ class Unit:
         return urljoin(self._space.apitable.api_base,
                        f"/fusion/v1/spaces/{self._space.id}/members/{unit_id}")
 
-    @property
     def _role_endpoint(self):
         return urljoin(self._space.apitable.api_base,
                        f"/fusion/v1/spaces/{self._space.id}/roles")
@@ -29,7 +28,6 @@ class Unit:
         return urljoin(self._space.apitable.api_base,
                        f"/fusion/v1/spaces/{self._space.id}/roles/{unit_id}/units")
 
-    @property
     def _team_endpoint(self):
         return urljoin(self._space.apitable.api_base,
                        f"/fusion/v1/spaces/{self._space.id}/teams")
