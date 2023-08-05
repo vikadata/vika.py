@@ -3,6 +3,7 @@
 .PHONY: install
 install:
 	poetry install
+	poetry export --without-hashes --format=requirements.txt > requirements.txt
 
 
 .PHONY: test
