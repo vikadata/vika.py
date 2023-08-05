@@ -24,5 +24,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.6",
-    install_requires=["requests", "pydantic==1.7", "environs"],
+    install_requires=["requests<=2.31.0", "pydantic==1.7", "environs<=9.5.0"],
 )
