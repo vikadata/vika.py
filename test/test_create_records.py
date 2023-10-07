@@ -1,16 +1,22 @@
+from typing import List
 import unittest
 import time
 import warnings
+
+from vika.datasheet.record import Record
 from vika import Vika
 from . import TOKEN, DOMAIN, SPACE_ID, DATASHEET_ID
 
 
 class TestCreateRecords(unittest.TestCase):
+
+
     def setUp(self):
         warnings.simplefilter("ignore", ResourceWarning)
         apitable = Vika(TOKEN)
         apitable.set_api_base(DOMAIN)
         self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID)
+        self.created_records: List[Record] = []
 
     def test_record_create(self):
         time.sleep(1)

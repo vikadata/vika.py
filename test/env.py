@@ -3,7 +3,7 @@ from environs import Env
 env = Env()
 env.read_env()
 
-API_BASE = "https://apitable.com"
+API_BASE = "https://aitable.ai"
 
 SPACE_ID = env("SPACE_ID")
 FOLDER_ID = env("FOLDER_ID")

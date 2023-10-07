@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List, Optional, Union, Any
 
 from pydantic import BaseModel
-from pydantic.typing import ForwardRef
+from typing import ForwardRef
 
 
 class MemberEnum(str, Enum):
@@ -38,11 +38,11 @@ class ComputeValueTypeEnum(str, Enum):
 
 # field property
 class SingleTextFieldProperty(BaseModel):
-    defaultValue: Optional[str]
+    defaultValue: Optional[str] = None
 
 
 class NumberFieldProperty(BaseModel):
-    defaultValue: Optional[str]
+    defaultValue: Optional[str] = None
     precision: int
 
 
@@ -77,7 +77,7 @@ class MemberOption(BaseModel):
     id: str
     name: str
     type: MemberEnum
-    avatar: Optional[str]
+    avatar: Optional[str] = None
 
 
 class MemberFieldProperty(BaseModel):
@@ -134,16 +134,16 @@ class FieldPropertyWithDstId(BaseModel):
 class MagicLookupFieldProperty(BaseModel):
     relatedLinkFieldId: str
     targetFieldId: str
-    hasError: Optional[bool]
-    entityField: Optional[FieldPropertyWithDstId]
+    hasError: Optional[bool] = None
+    entityField: Optional[FieldPropertyWithDstId] = None
     rollupFunction: RollUpFunctionEnum
     valueType: Optional[ComputeValueTypeEnum] = ComputeValueTypeEnum.String
 
 
 class FormulaFieldProperty(BaseModel):
-    expression: Optional[str]
+    expression: Optional[str] = None
     valueType: Optional[ComputeValueTypeEnum] = ComputeValueTypeEnum.String
-    hasError: Optional[bool]
+    hasError: Optional[bool] = None
 
 
 FieldProperty = Union[
@@ -173,8 +173,8 @@ class MetaField(BaseModel):
     name: str
     type: str
     isPrimary: Optional[bool] = False
-    desc: Optional[str]
-    editable: Optional[bool]
+    desc: Optional[str] = None
+    editable: Optional[bool] = None
 
     # Union Types is not parsed correctly, here is the manual parsing of Any.
     # fuck https://github.com/samuelcolvin/pydantic/issues/2941
@@ -215,4 +215,4 @@ class MetaField(BaseModel):
         return type_property_map.get(type, None)
 
 
-FieldPropertyWithDstId.update_forward_refs()
+FieldPropertyWithDstId.model_rebuild()

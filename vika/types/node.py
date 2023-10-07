@@ -10,6 +10,7 @@ class NodeTypeEnum(str, Enum):
     Form = 'Form'
     Dashboard = 'Dashboard'
     Mirror = 'Mirror'
+    ERROR = "ERROR NODE TYPE"
 
 
 class NodeListItem(BaseModel):
@@ -21,9 +22,9 @@ class NodeListItem(BaseModel):
 
 
 class NodeDetail(NodeListItem):
-    type = NodeTypeEnum.Folder
-    children: Optional[List[NodeListItem]]
+    type: NodeTypeEnum = NodeTypeEnum.Folder
+    children: Optional[List[NodeListItem]] = None
 
 class NodeSearchInfo(NodeListItem):
     permission: int
-    parentId: Optional[str]
+    parentId: Optional[str] = None

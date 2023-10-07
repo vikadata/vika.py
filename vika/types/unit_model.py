@@ -41,7 +41,7 @@ class MemberTypeEnum(str, Enum):
 
 class RawMember(RawUnit):
     avatar: str
-    email: Optional[str]
+    email: Optional[str] = None
     mobile: Mobile = Optional[Mobile]
     status: int
     type: MemberTypeEnum
@@ -50,34 +50,34 @@ class RawMember(RawUnit):
 
 
 class ModifyMemberRequest(BaseModel):
-    name: Optional[str]
-    teams: Optional[List[str]]
-    roles: Optional[List[str]]
+    name: Optional[str] = None
+    teams: Optional[List[str]] = None
+    roles: Optional[List[str]] = None
 
 
 class CreateRoleRequest(BaseModel):
     name: str
-    sequence: Optional[int]
+    sequence: Optional[int] = None
 
 
 class ModifyRoleRequest(BaseModel):
-    name: Optional[str]
-    sequence: Optional[int]
+    name: Optional[str] = None
+    sequence: Optional[int] = None
 
 
 class CreateTeamRequest(BaseModel):
     name: str
-    sequence: Optional[int]
+    sequence: Optional[int] = None
     # default "0" means root team
-    parentUnitId: Optional[str]
-    roles: Optional[List[str]]
+    parentUnitId: Optional[str] = None
+    roles: Optional[List[str]] = None
 
 
 class ModifyTeamRequest(BaseModel):
-    name: Optional[str]
-    sequence: Optional[int]
-    parentUnitId: Optional[str]
-    roles: Optional[List[str]]
+    name: Optional[str] = None
+    sequence: Optional[int] = None
+    parentUnitId: Optional[str] = None
+    roles: Optional[List[str]] = None
 
 
 class RoleUnit(BaseModel):

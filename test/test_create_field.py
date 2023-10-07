@@ -19,6 +19,7 @@ class TestCreateFields(unittest.TestCase):
         apitable = Vika(TOKEN)
         apitable.set_api_base(DOMAIN)
         self.dst = apitable.space(SPACE_ID).datasheet(DATASHEET_ID)
+        self.field = None
 
     def test_field_create(self):
         """Field Creation SDK Test"""

@@ -77,7 +77,7 @@ def handle_response(resp, resp_class: Generic[T]) -> T:
             try:
                 return resp_class(**r)
             except:
-                raise ResponseBodyParserError(f"Response Body Parser Error: {resp.text}")
+                raise ResponseBodyParserError(f"Response Class {resp_class} Body Parser Error: {resp.text}")
         raise Exception(r['message'])
     except JSONDecodeError:
         raise Exception(f"JSON Parser Error: {resp.text}")

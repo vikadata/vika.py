@@ -15,34 +15,34 @@ class EmbedLinkPermissionType(str, Enum):
 
 
 class EmbedLinkPayloadSideBar(BaseModel):
-    collapsed: Optional[bool]
+    collapsed: Optional[bool] = None
 
 
 class EmbedLinkPayloadViewToolBar(BaseModel):
-    basicTools: Optional[bool]
-    shareBtn: Optional[bool]
-    widgetBtn: Optional[bool]
-    apiBtn: Optional[bool]
-    formBtn: Optional[bool]
-    historyBtn: Optional[bool]
-    robotBtn: Optional[bool]
+    basicTools: Optional[bool] = None
+    shareBtn: Optional[bool] = None
+    widgetBtn: Optional[bool] = None
+    apiBtn: Optional[bool] = None
+    formBtn: Optional[bool] = None
+    historyBtn: Optional[bool] = None
+    robotBtn: Optional[bool] = None
 
 
 class EmbedLinkPayloadViewControl(BaseModel):
-    viewId: Optional[str]
-    tabBar: Optional[bool]
-    toolBar: Optional[EmbedLinkPayloadViewToolBar]
-    collapsed: Optional[bool]
+    viewId: Optional[str] = None
+    tabBar: Optional[bool] = None
+    toolBar: Optional[EmbedLinkPayloadViewToolBar] = None
+    collapsed: Optional[bool] = None
 
 
 class EmbedLinkPayload(BaseModel):
-    primarySideBar: Optional[EmbedLinkPayloadSideBar]
-    viewControl: Optional[EmbedLinkPayloadViewControl]
-    collapsed: Optional[bool]
-    permissionType: Optional[EmbedLinkPermissionType]
+    primarySideBar: Optional[EmbedLinkPayloadSideBar] = None
+    viewControl: Optional[EmbedLinkPayloadViewControl] = None
+    collapsed: Optional[bool] = None
+    permissionType: Optional[EmbedLinkPermissionType] = None
 
 
 class EmbedLinkCreateRo(BaseModel):
-    payload: Optional[EmbedLinkPayload]
-    theme: Optional[EmbedLinkThemeEnum]
+    payload: Optional[EmbedLinkPayload] = None
+    theme: Optional[EmbedLinkThemeEnum] = None
 

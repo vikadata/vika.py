@@ -16,4 +16,4 @@ class ViewTypeEnum(str, Enum):
 class MetaView(BaseModel):
     id: str
     name: str
-    type: Optional[ViewTypeEnum]
+    type: Optional[ViewTypeEnum] = None
