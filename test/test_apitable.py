@@ -13,6 +13,6 @@ class TestApitable(unittest.TestCase):
         """
         set up.
         """
-        with patch('apitable.apitable') as mock_apitable:
+        with patch('vika.apitable') as mock_apitable:
             self._apitable = mock_apitable
             self._space = Space(self._apitable, 'test_space_id')
