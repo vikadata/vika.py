@@ -58,6 +58,11 @@ class Datasheet:
                        f"/fusion/v1/datasheets/{self.id}/records")
 
     @property
+    def _record_api_endpoint_v3(self):
+        return urljoin(self.apitable.api_base,
+                       f"/fusion/v3/datasheets/{self.id}/records")
+
+    @property
     @timed_lru_cache(seconds=300)
     def fields(self):
         return FieldManager(self)
@@ -137,6 +142,12 @@ class Datasheet:
         """
         Paginate to get data
         """
+
+        is_v3 = bool(kwargs.get("isV3", False))
+        endpoint = self._record_api_endpoint
+        if is_v3:
+            endpoint = self._record_api_endpoint_v3
+
         params = {}
         for key in kwargs:
             if key in API_GET_DATASHEET_QS_SET:
@@ -147,7 +158,7 @@ class Datasheet:
                     else:
                         raise ErrorSortParams('The format of the sort parameter is incorrect')
                 params.update({key: params_value})
-        resp = self.apitable.request.get(self._record_api_endpoint, params=params)
+        resp = self.apitable.request.get(endpoint, params=params)
         return handle_response(resp, GETRecordResponse)
 
     def get_records_all(self, **kwargs) -> List[RawRecord]:

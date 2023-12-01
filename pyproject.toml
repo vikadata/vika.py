@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "apitable"
-version = "1.4.1"
+version = "2.0.0-beta.4"
 description = "APITable OpenAPI Python SDK"
 authors = ["APITable Ltd. <dev@apitable.com>"]
 readme = "README.md"
