@@ -104,8 +104,10 @@ class GETNodeListResponseData(BaseModel):
 class GETNodeListResponse(ResponseBase):
     data: GETNodeListResponseData
 
+
 class GETSearchNodeListResponseData(BaseModel):
     nodes: List[NodeSearchInfo]
+
 
 class GETSearchNodeListResponse(ResponseBase):
     data: GETSearchNodeListResponseData
